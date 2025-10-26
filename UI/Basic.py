@@ -122,7 +122,6 @@ def TextArea(
     if max_h: inner_classes += f" max-h-[{max_h}]"
     if overflow: inner_classes += f" overflow-{overflow}"
     if autogrow: ta.props('autogrow')
-    print(inner_classes)
     ta.classes(inner_classes)
     ta.classes(clas).props('dense outlined').props(props).style(styles)
     return ta
