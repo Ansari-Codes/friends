@@ -9,7 +9,7 @@ def Div(
     return ui.element().classes(clas).props(props).style(styles)
 
 def RawButton(
-        content: str = "",
+        content: str|Any = "",
         on_click = lambda: (),
         clas: str|None = "", 
         props: str|None = "",

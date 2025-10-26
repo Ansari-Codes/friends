@@ -1,6 +1,7 @@
-from typing import Callable, Literal
+from typing import Any, Callable, Literal
 from nicegui import ui
 from .Raw import RawRow, RawLabel
+from nicegui.events import GenericEventArguments
 
 def Label(
         text: str = "", 
@@ -99,5 +100,42 @@ def Button(
     if not config: config = {}
     return ui.button(text=text, on_click=on_click, **config).classes(clas).props(props).style(styles)
 
+def TextArea(
+        content: str = "",
+        model=None,
+        clas: str|None = "",
+        props: str|None = "",
+        styles: str|None = "",
+        autogrow: bool = False,
+        max_h: str|None = None,
+        min_h: str|None = None,
+        overflow: str|None = None,
+        flexible: bool = False,
+        config: dict|None = None
+    ):
+    if not config: config = {}
+    ta = ui.input(value=content, **config)
+    inner_classes = ""
+    if model: ta.bind_value(model)
+    if flexible: inner_classes += " flex-grow flex-shrink resize-none"
+    if min_h: inner_classes += f" min-h-[{min_h}]"
+    if max_h: inner_classes += f" max-h-[{max_h}]"
+    if overflow: inner_classes += f" overflow-{overflow}"
+    if autogrow: ta.props('autogrow')
+    print(inner_classes)
+    ta.classes(inner_classes)
+    ta.classes(clas).props('dense outlined').props(props).style(styles)
+    return ta
+
 def AddSpace():
     return ui.space()
+
+def Icon(
+        name: str = "" , 
+        size: str|None = None,
+        color: str|None = None,
+        clas: str|None = "", 
+        props: str|None = "",
+        styles: str|None = "",
+    ):
+    return ui.icon(name, size=size, color=color).classes(clas).props(props).style(styles)
