@@ -1,14 +1,22 @@
-from UI import Raw, SoftBtn, Label, Button, INIT_THEME, Header
+from UI import Raw, SoftBtn, Label, Button, INIT_THEME, Header, Icon, Row
 from utils.Storage import clearUserStorage
 from utils import navigate
 from library.formHandler import Variable
 from comps.Interface import CompChat
-from nicegui.ui import left_drawer, header
+from nicegui.ui import element, left_drawer, header
+from comps.CompHeaderTitle import CompHeaderTitle
+
+def toggleDrawer(drawer: left_drawer):
+    drawer.toggle()
+    s = drawer.value
+    to_add = ""
+    if s:
+        pass
 
 async def create():
     INIT_THEME()
-    with left_drawer().classes("bg-primary"):
+    with left_drawer().classes("bg-secondary"):
         pass
-    with Header(clas="bg-secodary", props="view-l"):
-        pass
-    SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])
+    with Header(clas='bg-primary'):
+        CompHeaderTitle()
+        SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])
