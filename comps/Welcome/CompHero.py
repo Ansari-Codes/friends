@@ -1,8 +1,10 @@
 from UI import Label, Card, Center, SoftBtn, Raw, AddSpace
 from routes import ROUTES
 from ENV import APP_NAME, FAVICON
-from utils.Auth import isAuthenticated
 from ENV import THEME_DEFAULT
+
+def MessageFields():
+    pass
 
 def CompHero():
     with Card(
@@ -23,7 +25,7 @@ def CompHero():
                 with Raw.RawRow("w-full"):
                     AddSpace()
                     Label(
-                        "Start your projects in a nice way!",
+                        "Connections that last a lifetime!",
                         "text-sm sm:text-lg p-1 mt-2 rounded-sm w-full md:w-[55%] italic",
                         styles=f"""
                             background: linear-gradient(
@@ -34,9 +36,6 @@ def CompHero():
                         """
                         )
                 with Raw.RawRow("w-full justify-center items-center gap-2"):
-                    if not isAuthenticated():
-                        SoftBtn("Sign Up", link=ROUTES.SIGNUP, icon="add")
-                        SoftBtn("Login", link=ROUTES.LOGIN, icon="person")
-                    else:
-                        SoftBtn("Dashboard", link=ROUTES.DASHBOARD, icon="dashboard")
+                    SoftBtn("Sign Up", link=ROUTES.SIGNUP, icon="add")
+                    SoftBtn("Login", link=ROUTES.LOGIN, icon="person")
                     AddSpace()

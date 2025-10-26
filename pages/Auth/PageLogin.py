@@ -11,7 +11,7 @@ async def login(form, errs):
     if response.get("success"):
         updateUserStorage({k:v for k,v in response.get("data", {}).items() if k not in ["created_at", "updated_at", "password"]})
         updateUserStorage({'auth': True})
-        navigate('/')
+        navigate(ROUTES.MAIN)
     else:
         errors = response.get("errors", {})
         errs.identifier.value = errors.get("identifier", "")

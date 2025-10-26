@@ -5,7 +5,6 @@ from utils import navigate
 MAIN = '/'
 LOGIN = '/login'
 SIGNUP = '/signup'
-DASHBOARD = '/dashboard'
 
 def require_auth(func):
     @wraps(func)
@@ -13,5 +12,5 @@ def require_auth(func):
         if isAuthenticated():
             return await func(*args, **kwargs)
         else:
-            navigate('/login')
+            navigate(LOGIN)
     return wrapper

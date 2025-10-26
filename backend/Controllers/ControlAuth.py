@@ -63,27 +63,9 @@ async def create(data: dict) -> dict:
         "data": result
     }
 
-async def create(data: dict) -> dict:
-    errors = await _validate(data)
-    result = []
-    if not errors:
-        try:
-            result = await Auth().create(data)
-            if not isinstance(result, (list, tuple)):
-                result = [result]
-        except Exception as e:
-            result = []
-            errors['Unknown'] = "Sorry, we cannot create your account!"
-    success = not bool(errors)
-    return {
-        "success": success,
-        "errors": errors,
-        "data": result
-    }
-
 async def login(data: dict) -> dict:
-    identifier = data.get("identifier")
-    password = data.get("password")
+    identifier = data.get("identifier", "")
+    password = data.get("password", "")
     errors = {}
     if not identifier: errors['identifier'] = "Email or Name is required!"
     if not password: errors['password'] = "Password is required!"
@@ -92,7 +74,7 @@ async def login(data: dict) -> dict:
         users = await Auth().getUserByIdentifier(identifier)
         if users and len(users) > 0:
             user_data = users[0]
-            hashed_pw = user_data.get("password")
+            hashed_pw = user_data.get("password", "")
             if not checkpw(password.encode(), hashed_pw.encode()):
                 errors['password'] = "Password is incorrect!"
                 user_data = None

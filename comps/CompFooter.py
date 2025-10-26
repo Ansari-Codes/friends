@@ -6,9 +6,9 @@ from routes.ROUTES import LOGIN, SIGNUP
 def CompFooter():
     with Footer(clas="flex flex-row justify-between items-center") as footer:
         RawLabel(APP_NAME + " &copy; 2025, All rights reserved!")
-        with RawRow(clas="w-fit gap-2"):
+        with RawRow(clas="w-fit gap-1"):
             if not isAuthenticated():
-                Link('Login', LOGIN)
+                Link('Login', LOGIN, clas="text-white")
                 RawLabel(".", clas="text-white")
-                Link('Signup', SIGNUP)
+                Link('Signup', SIGNUP, clas="text-white")
     return footer

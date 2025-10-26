@@ -11,7 +11,7 @@ async def signup(form, errs):
     if response.get("success"):
         updateUserStorage({k:v for k,v, in response.get("data", {})[0].items() if k!="password"})
         updateUserStorage({"auth":True})
-        navigate('/')
+        navigate(ROUTES.MAIN)
     else:
         errors = response.get("errors", {})
         errs.name.value = errors.get("name", "")
