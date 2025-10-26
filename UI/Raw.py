@@ -1,6 +1,14 @@
 from typing import Any
 from nicegui import ui
 
+def Html(
+        content: str = "",
+        clas: str|None = "",
+        props: str|None = "",
+        styles: str|None = "",
+    ):
+    return ui.html(content, sanitize=lambda x: x).classes(clas).props(props).style(styles)
+
 def Div(       
         clas: str|None = "", 
         props: str|None = "",
