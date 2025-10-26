@@ -33,13 +33,12 @@ class Chat(Model):
             from_id=from_id,
             to_id=to_id,
             content=content,
-            reply_to_id=reply_to_id,
+            reply_to_id=reply_to_id or 'NULL',
             status=status,
-            sent_at=datetime.datetime.utcnow()
+            sent_at=f'{str(datetime.datetime.now(datetime.timezone.utc))}'
         ).SQL()
-
         await RUN_SQL(SQL)
-        FETCH = Query(TABLE).select().where(from_id=from_id, to_id=to_id).order_by("id DESC").limit(1).SQL()
+        FETCH = Query(TABLE).select().where(from_id=from_id, to_id=to_id).order_by("id", direction='DESC').limit(1).SQL()
         return await RUN_SQL(FETCH, True)
 
     # ----------------- UPDATE -----------------
@@ -96,22 +95,22 @@ class Chat(Model):
         return FETCH
 
     async def getMessagesByUserID(self, user_id: int|None):
-        SQL = Query(TABLE).select().where(from_id=user_id).orWhere(to_id=user_id).order_by("sent_at ASC").SQL()
+        SQL = Query(TABLE).select().where(from_id=user_id).orWhere(to_id=user_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
         return FETCH
 
     async def getMessagesByToID(self, to_id: int|None):
-        SQL = Query(TABLE).select().where(to_id=to_id).order_by("sent_at ASC").SQL()
+        SQL = Query(TABLE).select().where(to_id=to_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
         return FETCH
 
     async def getMessagesByFromID(self, from_id: int|None):
-        SQL = Query(TABLE).select().where(from_id=from_id).order_by("sent_at ASC").SQL()
+        SQL = Query(TABLE).select().where(from_id=from_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
         return FETCH
 
     async def searchMessagesInContent(self, keyword: str):
-        SQL = Query(TABLE).select().where(content__like=f"%{keyword}%").order_by("sent_at ASC").SQL()
+        SQL = Query(TABLE).select().where(content__like=f"%{keyword}%").order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
         return FETCH
 
@@ -120,11 +119,12 @@ class Chat(Model):
             raise Required("from_id")
         if to_id is None:
             raise Required("to_id")
-        SQL = Query(TABLE).select().where(
-            from_id=from_id, to_id=to_id
-        ).orWhere(
-            from_id=to_id, to_id=from_id
-        ).order_by("sent_at ASC").SQL()
+        SQL = f"""
+        SELECT * FROM {TABLE}
+        WHERE (from_id={from_id} AND to_id={to_id})
+        OR (from_id={to_id} AND to_id={from_id})
+        ORDER BY sent_at;
+        """
         messages = await RUN_SQL(SQL, to_fetch=True)
         if page_size:
             pages = [messages[i:i+page_size] for i in range(0, len(messages), page_size)]

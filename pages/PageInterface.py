@@ -6,5 +6,5 @@ from comps.Interface import CompChat
 
 async def create():
     INIT_THEME()
-    await CompChat.CompChat()
+    await CompChat.CompChat({"id":2})
     SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])

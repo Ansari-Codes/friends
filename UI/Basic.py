@@ -2,6 +2,7 @@ from typing import Any, Callable, Literal
 from nicegui import ui
 from .Raw import RawRow, RawLabel
 from nicegui.events import GenericEventArguments
+from .Layouts import Row
 
 def Label(
         text: str = "", 
@@ -62,14 +63,14 @@ def SoftBtn(
         styles: str|None = "",
     ):
     base_classes = (
-        "inline-flex items-center justify-center gap-2 "
+        "flex items-center justify-center gap-0 "
         "px-4 py-2 rounded-sm text-white text-[14px] font-medium "
         "transition-all duration-200 ease-in-out "
         "bg-btn shadow-md hover:shadow-lg active:scale-95 "
         "select-none cursor-pointer ripple no-underline"
     )
     classes = f"{base_classes} {clas or ''}".strip()
-    with (ui.link("", link, new_tab) if link else RawRow()).classes(classes).props(props).style(styles) as btn:
+    with (ui.link("", link, new_tab) if link else Row()).classes(classes).props(props).style(styles) as btn:
         if icon:
             ui.icon(icon).classes("text-[18px]")
         if text:

@@ -44,19 +44,18 @@ class Query:
     # --- WHERE ---
     def where(self, **conditions):
         """Base WHERE clause (replaces any previous conditions)."""
-        self._where = [self._build_condition(k, v) for k, v in conditions.items()]
+        conds = [self._build_condition(k, v) for k, v in conditions.items()]
+        self._where = [f"({' AND '.join(conds)})"]
         return self
 
     def andWhere(self, **conditions):
-        """Append AND conditions to existing WHERE clause."""
-        for k, v in conditions.items():
-            self._where.append(f"AND {self._build_condition(k, v)}")
+        conds = [self._build_condition(k, v) for k, v in conditions.items()]
+        self._where.append(f"AND ({' AND '.join(conds)})")
         return self
 
     def orWhere(self, **conditions):
-        """Append OR conditions to existing WHERE clause."""
-        for k, v in conditions.items():
-            self._where.append(f"OR {self._build_condition(k, v)}")
+        conds = [self._build_condition(k, v) for k, v in conditions.items()]
+        self._where.append(f"OR ({' AND '.join(conds)})")
         return self
 
     # --- internal helper for condition building ---
@@ -73,8 +72,10 @@ class Query:
     def SQL(self) -> str:
         if self._action == "insert":
             cols = ", ".join(self._values.keys())
+            def v_or_NULL(v): 
+                return f"'{v}'" if v else 'NULL'
             vals = ", ".join(
-                [f"'{v}'" if isinstance(v, str) else str(v) for v in self._values.values()]
+                [f"{v_or_NULL(v)}" if isinstance(v, str) else str(v) for v in self._values.values()]
             )
             return f"INSERT INTO {self.table} ({cols}) VALUES ({vals});"
 

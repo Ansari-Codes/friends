@@ -18,6 +18,7 @@ THEME_DEFAULT = dict(
     info = '#31ccec',
     warning = '#f2c037',
     btn = "#639761",
+    disabled = "#6B6B6B",
     # Chat-specific additions
     chat_bubble_sent = '#5898d4',
     chat_bubble_received = '#f0f0f0',
