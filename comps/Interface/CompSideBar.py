@@ -33,7 +33,8 @@ async def list_contacts(contacts, model:Variable):
                     i.get("user", {}).get("name"),
                     on_click=lambda value=i: model.setValue(value),
                     clr="primary",
-                    clas="w-full text-left"
+                    clas="w-full",
+                    text_align='left'
                 )
             contcts.append({
                 'btn': widget,
