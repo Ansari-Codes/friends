@@ -23,7 +23,3 @@ async def create():
     with Header(clas='bg-primary justify-between items-center'):
         CompHeaderTitle()
         SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])
-    sub_pages({
-        "/contact/{id_}":lambda id_: CompChat.CompChat(Auth().getUserById(id_))
-    })
-    

@@ -32,7 +32,7 @@ async def list_contacts(contacts, model:Variable):
         for i in contacts:
             widget = SoftBtn(
                     i.get("user", {}).get("name"),
-                    on_click=lambda value=i: [navigate(f'/contact/{i.get("user", {}).get("id", 0)}')],
+                    on_click=lambda value=i: [navigate(f'/contact/')],
                     clr="btn",
                     clas="w-full hover:bg-primary",
                     text_align='left'

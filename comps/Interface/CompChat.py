@@ -55,14 +55,9 @@ async def CompChat(to: dict|None):
     to = await to.get("user", {})
     prev_chat = await _fetch_chat(to)
     if not prev_chat.get("success"): return
-
     chat_messages = Variable("chat_messages", prev_chat.get("data", []))
     message_content = Variable("message_content", "")
-
-    # Parent container - full height
     with Raw.RawCol(clas="w-full h-full flex flex-col") as parent:
-
-        # Chat messages area - 80% height, scrollable
         with Col(clas="w-full h-[80%] overflow-y-auto gap-2 p-2 bg-secondary") as messages_col:
             for page in (chat_messages.value or []):
                 for msg in page:
@@ -71,8 +66,6 @@ async def CompChat(to: dict|None):
                         if sent: AddSpace()
                         message(text=msg.get("content"), sent=sent)
                         if not sent: AddSpace()
-
-        # Message input area - 20% height
         with Col(clas="w-full h-[20%] p-2 bg-primary flex items-end"):
             createMessageBox(
                 message_content,

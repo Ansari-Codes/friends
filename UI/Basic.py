@@ -80,7 +80,7 @@ def SoftBtn(
     print(c)
     icon_config = icon_config or {}
     base_classes = (
-        f"flex items-center justify-center gap-0 "
+        f"flex items-center justify-center gap-0 text-{text_align or 'center'} "
         f"px-{px} py-{py} rounded-sm text-white text-[14px] font-medium "
         f"transition-all duration-200 ease-in-out "
         f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
