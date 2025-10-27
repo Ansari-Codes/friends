@@ -17,6 +17,6 @@ async def create():
     INIT_THEME()
     with left_drawer().classes("bg-secondary"):
         pass
-    with Header(clas='bg-primary'):
+    with Header(clas='bg-primary justify-between items-center'):
         CompHeaderTitle()
         SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])

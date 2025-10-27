@@ -6,7 +6,7 @@ from .CompHeaderTitle import CompHeaderTitle
 
 def CompHeader():
     with Header(clas="flex flex-row justify-between items-center") as header:
-        CompHeaderTitle()
+        CompHeaderTitle(MAIN)
         with RawRow(clas="w-fit gap-2"):
             if isAuthenticated():
                 SoftBtn('Dashboard', link=MAIN)

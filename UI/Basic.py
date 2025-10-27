@@ -43,13 +43,14 @@ def Card(
 def Link(
         text: str = "",
         link: str = "",
+        underline:  bool = True,
         new_tab: bool = False,
         clas: str|None = "", 
         props: str|None = "",
         styles: str|None = "",
     ):
     return ui.link(text, link, new_tab).classes(
-        "hover:underline"
+        "hover:underline"*underline
     ).classes(clas).props(props).style(styles)
 
 def SoftBtn(
