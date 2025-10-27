@@ -3,23 +3,21 @@ from utils.Storage import clearUserStorage
 from utils import navigate
 from library.formHandler import Variable
 from comps.Interface import CompChat, CompSideBar
-from nicegui.ui import element, left_drawer, header, sub_pages
+from nicegui.ui import element, left_drawer, header
 from comps.CompHeaderTitle import CompHeaderTitle
 from backend.Models.ModelAuth import Auth
-
-def toggleDrawer(drawer: left_drawer):
-    drawer.toggle()
-    s = drawer.value
-    to_add = ""
-    if s:
-        pass
 
 async def create():
     INIT_THEME()
     query_model = Variable("query")
-    select_model = Variable("select", {})
+    chat_box = element('div').classes('w-full h-full')
+    async def open_chat(contact: dict | None):
+        contact = contact or {}
+        chat_box.clear()
+        await CompChat.CompChat(contact, chat_box)
     with left_drawer().classes("bg-secondary"):
-        await CompSideBar.CompSideBar(query_model, select_model)
+        await CompSideBar.CompSideBar(query_model, open_chat)
     with Header(clas='bg-primary justify-between items-center'):
         CompHeaderTitle()
         SoftBtn("LogOut", on_click=lambda: [clearUserStorage(), navigate('/')])
+    with chat_box: Label('Select a contact from the sidebar to start chatting')

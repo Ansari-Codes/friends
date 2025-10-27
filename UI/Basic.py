@@ -91,7 +91,7 @@ def SoftBtn(
         if icon:
             ui.icon(icon, **icon_config).classes("text-[18px]")
         if text:
-            ui.label(text).classes(f"flex flex-grow flex-shrink text-{text_align or 'center'}")
+            ui.label(text)
     btn = btn.on('click', on_click)
     return btn
 

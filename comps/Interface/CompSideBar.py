@@ -11,7 +11,7 @@ async def create_search(contacts: list, model: Variable):
     with Row(f"w-full border border-[{THEME_DEFAULT.get('primary', '#0f0')}] rounded-sm gap-0") as cont:
         Input(
             "flex flex-grow flex-shrink px-2 bg-transparent", 
-            autocomplete = names,
+            autocomplete=names,
             props='dense borderless input-class="bg-transparent"',
             default_props=False,
             model=model,
@@ -26,25 +26,27 @@ async def create_search(contacts: list, model: Variable):
         )
     cont.classes("w-full")
 
-async def list_contacts(contacts, model:Variable):
+async def list_contacts(contacts, open_chat_callback=None):
     contcts = []
     with RawCol('w-full h-fit max-h-full overflow-y-auto') as container:
         for i in contacts:
+            def make_click_handler(contact):
+                return lambda: open_chat_callback(contact) if open_chat_callback else None
             widget = SoftBtn(
-                    i.get("user", {}).get("name"),
-                    on_click=lambda value=i: [navigate(f'/contact/')],
-                    clr="btn",
-                    clas="w-full hover:bg-primary",
-                    text_align='left'
-                )
+                i.get("user", {}).get("name"),
+                on_click=make_click_handler(i),
+                clr="btn",
+                clas="w-full hover:bg-primary",
+                text_align='left'
+            )
             contcts.append({
                 'btn': widget,
                 'contact': i
             })
     return contcts, container
 
-async def CompSideBar(model_query: Variable, model_select: Variable):
+async def CompSideBar(model_query: Variable, open_chat_callback=None):
     response = (await get_contacts(getUserStorage().get("id"))) or {}
     contacts = response.get("data", [])
     await create_search(contacts, model_query)
-    await list_contacts(contacts, model_select)
+    await list_contacts(contacts, open_chat_callback)
