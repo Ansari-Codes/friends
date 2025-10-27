@@ -3,6 +3,7 @@ from nicegui import ui
 from .Raw import RawRow, RawLabel
 from nicegui.events import GenericEventArguments
 from .Layouts import Row
+from ENV import THEME_DEFAULT
 
 def Label(
         text: str = "", 
@@ -62,18 +63,32 @@ def SoftBtn(
         clas: str|None = "", 
         props: str|None = "",
         styles: str|None = "",
+        icon_config: dict|None = None,
+        px: int = 4,
+        py: int = 2,
+        clr: str = "btn",
+        ripple: bool = True,
+        hover_effects: bool = True,
+        active_effects: bool = True,
     ):
+    colors = list(THEME_DEFAULT.keys())
+    clr = clr or "transparent"
+    if '/' in clr: c = clr.split('/')[0]
+    else: c = clr
+    if c not in colors+['transparent']: c = f"[{c}]"
+    print(c)
+    icon_config = icon_config or {}
     base_classes = (
-        "flex items-center justify-center gap-0 "
-        "px-4 py-2 rounded-sm text-white text-[14px] font-medium "
-        "transition-all duration-200 ease-in-out "
-        "bg-btn shadow-md hover:shadow-lg active:scale-95 "
-        "select-none cursor-pointer ripple no-underline"
+        f"flex items-center justify-center gap-0 "
+        f"px-{px} py-{py} rounded-sm text-white text-[14px] font-medium "
+        f"transition-all duration-200 ease-in-out "
+        f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
+        f"select-none cursor-pointer {'ripple'*bool(ripple)} no-underline"
     )
     classes = f"{base_classes} {clas or ''}".strip()
     with (ui.link("", link, new_tab) if link else Row()).classes(classes).props(props).style(styles) as btn:
         if icon:
-            ui.icon(icon).classes("text-[18px]")
+            ui.icon(icon, **icon_config).classes("text-[18px]")
         if text:
             ui.label(text)
     btn = btn.on('click', on_click)
