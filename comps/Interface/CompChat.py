@@ -50,25 +50,31 @@ def createMessageBox(model=None, on_send = lambda :()):
         )
         SoftBtn(icon="send", on_click=on_send, clas="flex h-10 aspect-square shadow-none")
 
-async def CompChat(to: dict|None = None):
-    if not to: to={}
-    to = {
-        "id": 9 if getUserId() == 10 else 10
-    }
+async def CompChat(to: dict|None):
+    to = to or {}
+    to = await to.get("user", {})
     prev_chat = await _fetch_chat(to)
     if not prev_chat.get("success"): return
+
     chat_messages = Variable("chat_messages", prev_chat.get("data", []))
     message_content = Variable("message_content", "")
-    with Raw.RawCol(clas="w-full h-full bg-primary flex flex-col") as parent:
-        with Col(clas="flex-grow overflow-auto gap-2 p-2 bg-secondary") as messages_col:
+
+    # Parent container - full height
+    with Raw.RawCol(clas="w-full h-full flex flex-col") as parent:
+
+        # Chat messages area - 80% height, scrollable
+        with Col(clas="w-full h-[80%] overflow-y-auto gap-2 p-2 bg-secondary") as messages_col:
             for page in (chat_messages.value or []):
                 for msg in page:
                     sent = msg.get("from_id") == getUserId()
-                    with Row(clas="w-full"):
+                    with Row(clas="w-full items-center"):
                         if sent: AddSpace()
                         message(text=msg.get("content"), sent=sent)
                         if not sent: AddSpace()
-        createMessageBox(
-            message_content,
-            lambda col=messages_col: send(message_content, chat_messages, col, to)
-        )
+
+        # Message input area - 20% height
+        with Col(clas="w-full h-[20%] p-2 bg-primary flex items-end"):
+            createMessageBox(
+                message_content,
+                lambda col=messages_col: send(message_content, chat_messages, col, to)
+            )
