@@ -2,6 +2,10 @@ class Variable:
     def __init__(self, name: str, value = None):
         self.name = name
         self.value = value
+    
+    def setValue(self, value = None):
+        self.value = value
+        return self.value
 
 class Group:
     def __init__(self, variables = []):

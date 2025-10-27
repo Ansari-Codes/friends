@@ -70,6 +70,7 @@ def SoftBtn(
         ripple: bool = True,
         hover_effects: bool = True,
         active_effects: bool = True,
+        text_align: Literal['left', 'center', 'right'] = 'center',
     ):
     colors = list(THEME_DEFAULT.keys())
     clr = clr or "transparent"
@@ -80,7 +81,7 @@ def SoftBtn(
     icon_config = icon_config or {}
     base_classes = (
         f"flex items-center justify-center gap-0 "
-        f"px-{px} py-{py} rounded-sm text-white text-[14px] font-medium "
+        f"px-{px} py-{py} rounded-sm text-{text_align or 'center'} text-white text-[14px] font-medium "
         f"transition-all duration-200 ease-in-out "
         f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
         f"select-none cursor-pointer {'ripple'*bool(ripple)} no-underline"
@@ -99,9 +100,14 @@ def Input(
         props: str|None = "",
         styles: str|None = "",
         model = None,
+        default_props: bool|None = True,
         **kwargs
     ):
-    inp = ui.input(**kwargs).props("dense outlined").classes(clas).props(props).style(styles)
+    inp = ui.input(
+        **kwargs
+    ).props(
+        "dense outlined"*bool(default_props) + ' '+ (props or '')
+    ).classes(clas).props(props).style(styles)
     if model:
         inp.bind_value(model, 'value')
     return inp
