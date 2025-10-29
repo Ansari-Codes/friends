@@ -36,7 +36,7 @@ async def send(model, chat, col, to: dict|None = None):
 
 def createUserInfo(info: dict):
     with Raw.RawRow("") as r:
-        Label(f"{info.get('name', '')} ({info.get('email', '')})",
+        Label(f"{info.get('name', '').title()} ({info.get('email', '')})",
             "text-white font-medium truncate px-2")
     return r
 
