@@ -45,18 +45,16 @@ async def _validate(data: dict) -> dict:
     return errors
 
 # ------------------ CONTROLLER FUNCTIONS ------------------
-
 async def send(data: dict) -> dict:
     errors = await _validate(data)
     result = []
     if not errors:
         try:
-            data['content'] = data.get("content", "").replace("\n", "\\n").replace("'", "\'").replace('"', '\"') if data.get("content", "").strip() else None
             result = await Chat().create(data)
             if not isinstance(result, (list, tuple)):
                 result = [result]
         except Exception as e:
-            errors["unknown"] = "Message could not be sent!"
+            errors["unknown"] = f"Message could not be sent! ({str(e)})"
             result = []
     return {"success": not bool(errors), "errors": errors, "data": result}
 

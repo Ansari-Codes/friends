@@ -61,22 +61,30 @@ class Query:
     # --- internal helper for condition building ---
     def _build_condition(self, key, value):
         if isinstance(value, str):
+            value = value.replace("'", "''")
             return f"{key}='{value}'"
         elif isinstance(value, (tuple, list)) and len(value) == 2:
-            # e.g. ("<", 10) or (">=", 5)
-            return f"{key}{value[0]}{value[1]}"
+            op, val = value
+            if isinstance(val, str):
+                val = val.replace("'", "''")
+                return f"{key}{op}'{val}'"
+            return f"{key}{op}{val}"
         else:
             return f"{key}={value}"
+
+    def _escape_value(self, v):
+        if v is None:
+            return 'NULL'
+        if isinstance(v, str):
+            v = v.replace("'", "''")  # SQL standard escape
+            return f"'{v}'"
+        return str(v)
 
     # --- SQL BUILDER ---
     def SQL(self) -> str:
         if self._action == "insert":
             cols = ", ".join(self._values.keys())
-            def v_or_NULL(v): 
-                return f"'{v}'" if v else 'NULL'
-            vals = ", ".join(
-                [f"{v_or_NULL(v)}" if isinstance(v, str) else str(v) for v in self._values.values()]
-            )
+            vals = ", ".join([self._escape_value(v) for v in self._values.values()])
             return f"INSERT INTO {self.table} ({cols}) VALUES ({vals});"
 
         if self._action == "select":
@@ -91,12 +99,9 @@ class Query:
             return sql + ";"
 
         if self._action == "update":
-            sets = ", ".join(
-                [f"{k}='{v}'" if isinstance(v, str) else f"{k}={v}" for k, v in self._values.items()]
-            )
+            sets = ", ".join([f"{k}={self._escape_value(v)}" for k, v in self._values.items()])
             sql = f"UPDATE {self.table} SET {sets}"
-            if self._where:
-                sql += " WHERE " + " ".join(self._where)
+            if self._where: sql += " WHERE " + " ".join(self._where)
             return sql + ";"
 
         if self._action == "delete":

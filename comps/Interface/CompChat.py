@@ -28,10 +28,8 @@ async def send(model, chat, col, to: dict|None = None):
     if response.get("success"):
         chat.value.append(response.get("data"))
         model.value = ""
-        with Row(clas="w-full") as r:
-            AddSpace()
-            msg_elem = message(text=msg, sent=True)
-        r.move(col)
+        msg = response.get("data", [])[0]
+        addMessage(msg, col)
     else:
         Notify("We cannot send your message!", color="error", icon="error")
         print(response.get("errors"))
@@ -65,19 +63,22 @@ def createMessageBox(model=None, on_send=lambda:()):
         )
     return r
 
+def addMessage(msg: dict, container):
+    with Row(clas="w-full h-fit items-center p-0 m-0 gap-0") as r:
+        sent = msg.get("from_id") == getUserId()
+        if sent: 
+            AddSpace()
+        msg_elem = message(text=msg.get("content"), sent=sent)
+        msg_elem.classes("max-w-[80%] sm:max-w-[60%]")
+        if not sent:
+            AddSpace()
+    r.move(container)
+
 def addPreviousMessages(prev_chat, chat_messages, contianer):
     chat_messages.value = prev_chat.get("data", [])
     for page in (chat_messages.value or []):
         for msg in page:
-            sent = msg.get("from_id") == getUserId()
-            with Row(clas="w-full h-fit items-center p-0 m-0 gap-0") as r:
-                if sent: 
-                    AddSpace()
-                msg_elem = message(text=msg.get("content"), sent=sent)
-                msg_elem.classes("max-w-[80%] sm:max-w-[60%]")
-                if not sent:
-                    AddSpace()
-            r.move(contianer)
+            addMessage(msg, contianer)
 
 async def CompChat(to: dict | None, container: element):
     to = to or {}
@@ -103,6 +104,7 @@ async def CompChat(to: dict | None, container: element):
         else: Label("Failed to load chat history")
         run_javascript("""
             const chatContainer = document.getElementById('chat-container');
+            chatContainer.scrollTop = chatContainer.scrollHeight;
             const observer = new MutationObserver(() => {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
             });
