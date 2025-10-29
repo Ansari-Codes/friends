@@ -49,7 +49,7 @@ def createMessageBox(model=None, on_send=lambda:()):
             overflow='y-auto',
             flexible=True,
             model=model,
-            autogrow=False,
+            autogrow=True,
             clas="bg-inp rounded-sm",
             config=dict(
                 placeholder = "Your Message Here..."
@@ -90,12 +90,12 @@ async def CompChat(to: dict | None, container: element):
     with container.classes("gap-1 w-full"):
         # User Info
         u = createUserInfo(user_data)
-        u.classes("w-full h-[6vh] gap-1 items-center justify-center bg-primary rounded-xl")
+        u.classes("w-full absolute top-0 left-0 bg-primary p-2 flex gap-2 items-center ")
 
         # Message Show
         chat_messages = Variable("chat_messages", [])
         messages_col = Raw.RawCol(
-            f"w-full h-[82vh] items-end justify-end overflow-y-auto bg-secondary p-6 rounded-xl border border-[{THEME_DEFAULT.get('primary', '#2e712e')}]"
+            f"w-full h-[86vh] absolute top-4 mt-6 items-end justify-end overflow-y-auto p-6"
         )
         messages_col.props('id="chat-container"')
         prev_chat = await _fetch_chat(user_data)
@@ -116,4 +116,4 @@ async def CompChat(to: dict | None, container: element):
                 message_content,
                 lambda: send(message_content, chat_messages, messages_col, user_data)
             )
-        c.classes("w-full h-[6vh] gap-1 items-center justify-center")
+        c.classes("w-full absolute bottom-0 left-0 p-2 flex gap-2 items-end")
