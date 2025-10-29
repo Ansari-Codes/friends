@@ -13,4 +13,10 @@ def INIT_THEME():
     moder = ui.dark_mode(mode)
     def change(value):
         moder.value = value
+    ui.add_css("""
+    .nicegui-layout{
+        padding: 0px !important;
+        margin: 0px !important;
+    }
+    """, shared=True)
     return colors, moder, change
