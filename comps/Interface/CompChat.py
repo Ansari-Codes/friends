@@ -34,8 +34,14 @@ async def send(model, chat, col, to: dict|None = None):
         Notify("We cannot send your message!", color="error", icon="error")
         print(response.get("errors"))
 
+def createUserInfo(info: dict):
+    with Raw.RawRow("") as r:
+        Label(f"{info.get('name', '')} ({info.get('email', '')})",
+            "text-white font-medium truncate px-2")
+    return r
+
 def createMessageBox(model=None, on_send=lambda:()):
-    with Raw.RawRow() as r:
+    with Raw.RawRow("") as r:
         TextArea(
             "TextArea",
             max_h='120px',
@@ -43,9 +49,15 @@ def createMessageBox(model=None, on_send=lambda:()):
             overflow='y-auto',
             flexible=True,
             model=model,
-            autogrow=False
+            autogrow=False,
+            clas="bg-inp rounded-sm",
         )
-        SoftBtn(icon="send", on_click=on_send, clas="flex h-10 aspect-square shadow-none")
+        SoftBtn(
+            icon="send",
+            on_click=on_send, 
+            rounded='sm',
+            clas="flex h-10 aspect-square shadow-none"
+        )
     return r
 
 def addPreviousMessages(prev_chat, chat_messages, contianer):
@@ -65,16 +77,18 @@ async def CompChat(to: dict | None, container: element):
     to = to or {}
     user_data = to.get("user", {})
     if not user_data or not user_data.get("id"):
-        with container: Label("Invalid contact selected")
+        Notify("Invalid contact selected", color='red', icon='error')
         return
     container.clear()
+    with container.classes("gap-1"):
+        # User Info
+        u = createUserInfo(user_data)
+        u.classes("w-full h-[6vh] gap-1 items-center justify-center bg-primary rounded-xl")
 
-    with container:
         # Message Show
         chat_messages = Variable("chat_messages", [])
-        messages_col = Col(
-            "w-full h-[90vh] overflow-y-auto gap-2 p-2 "
-            "bg-secondary rounded-t-2xl"
+        messages_col = Raw.RawCol(
+            "w-full h-[80vh] overflow-y-auto bg-secondary p-2 rounded-xl"
         )
         prev_chat = await _fetch_chat(user_data)
         if prev_chat.get("success"):
@@ -83,13 +97,8 @@ async def CompChat(to: dict | None, container: element):
 
         # Message Box
         message_content = Variable("message_content", "")
-        with Raw.Div("flex w-full h-fit bg-primary justify-center items-center"):
-            c = createMessageBox(
-                    message_content,
-                    lambda: send(message_content, chat_messages, messages_col, user_data)
-                )
-            c.classes("w-full h-[9vh] items-end justify-center gap-1 bg-transparent")
-
-    # # Add Container
-    # messages_col.move(container)
-    # c.move(container)
+        c = createMessageBox(
+                message_content,
+                lambda: send(message_content, chat_messages, messages_col, user_data)
+            )
+        c.classes("w-full h-[6vh] gap-1 items-center justify-center")

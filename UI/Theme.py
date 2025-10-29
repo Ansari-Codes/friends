@@ -14,9 +14,8 @@ def INIT_THEME():
     def change(value):
         moder.value = value
     ui.add_css("""
-    .nicegui-layout{
-        padding: 0px !important;
-        margin: 0px !important;
+    .q-notification__message{
+        font-size: 16px;
     }
     """, shared=True)
     return colors, moder, change

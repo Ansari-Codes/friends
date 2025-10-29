@@ -71,6 +71,8 @@ def SoftBtn(
         hover_effects: bool = True,
         active_effects: bool = True,
         text_align: Literal['left', 'center', 'right'] = 'center',
+        rounded: Literal['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', 'full']|None = 'sm',
+        justify: Literal['center', 'between', None] = 'center'
     ):
     colors = list(THEME_DEFAULT.keys())
     clr = clr or "transparent"
@@ -80,8 +82,8 @@ def SoftBtn(
     print(c)
     icon_config = icon_config or {}
     base_classes = (
-        f"flex items-center justify-center gap-0 text-{text_align or 'center'} "
-        f"px-{px} py-{py} rounded-sm text-white text-[14px] font-medium "
+        f"flex items-center{' justify-'+justify if justify else ''} gap-0 text-{text_align or 'center'} "
+        f"px-{px} py-{py} rounded-{rounded or 'none'} text-white text-[14px] font-medium "
         f"transition-all duration-200 ease-in-out "
         f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
         f"select-none cursor-pointer {'ripple'*bool(ripple)} no-underline"
@@ -89,7 +91,7 @@ def SoftBtn(
     classes = f"{base_classes} {clas or ''}".strip()
     with (ui.link("", link, new_tab) if link else Row()).classes(classes).props(props).style(styles) as btn:
         if icon:
-            ui.icon(icon, **icon_config).classes("text-[18px]")
+            ui.icon(icon, **icon_config).classes(f"text-[18px]")
         if text:
             ui.label(text)
     btn = btn.on('click', on_click)
