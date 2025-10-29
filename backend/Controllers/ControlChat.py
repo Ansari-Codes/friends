@@ -51,6 +51,7 @@ async def send(data: dict) -> dict:
     result = []
     if not errors:
         try:
+            data['content'] = data.get("content", "").replace("\n", "\\n").replace("'", "\'").replace('"', '\"') if data.get("content", "").strip() else None
             result = await Chat().create(data)
             if not isinstance(result, (list, tuple)):
                 result = [result]

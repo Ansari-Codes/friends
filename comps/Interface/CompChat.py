@@ -3,6 +3,8 @@ from backend.Controllers import ControlChat
 from library.formHandler import Variable
 from utils.Storage import getUserStorage
 from nicegui.ui import element
+from ENV import THEME_DEFAULT
+from nicegui.ui import run_javascript
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -51,6 +53,9 @@ def createMessageBox(model=None, on_send=lambda:()):
             model=model,
             autogrow=False,
             clas="bg-inp rounded-sm",
+            config=dict(
+                placeholder = "Your Message Here..."
+            )
         )
         SoftBtn(
             icon="send",
@@ -65,14 +70,15 @@ def addPreviousMessages(prev_chat, chat_messages, contianer):
     for page in (chat_messages.value or []):
         for msg in page:
             sent = msg.get("from_id") == getUserId()
-            with Row(clas="w-full items-center") as r:
+            with Row(clas="w-full h-fit items-center p-0 m-0 gap-0") as r:
                 if sent: 
                     AddSpace()
                 msg_elem = message(text=msg.get("content"), sent=sent)
-                if not sent: 
+                msg_elem.classes("max-w-[80%] sm:max-w-[60%]")
+                if not sent:
                     AddSpace()
             r.move(contianer)
-    
+
 async def CompChat(to: dict | None, container: element):
     to = to or {}
     user_data = to.get("user", {})
@@ -80,7 +86,7 @@ async def CompChat(to: dict | None, container: element):
         Notify("Invalid contact selected", color='red', icon='error')
         return
     container.clear()
-    with container.classes("gap-1"):
+    with container.classes("gap-1 w-full"):
         # User Info
         u = createUserInfo(user_data)
         u.classes("w-full h-[6vh] gap-1 items-center justify-center bg-primary rounded-xl")
@@ -88,13 +94,20 @@ async def CompChat(to: dict | None, container: element):
         # Message Show
         chat_messages = Variable("chat_messages", [])
         messages_col = Raw.RawCol(
-            "w-full h-[82vh] overflow-y-auto bg-secondary p-6 rounded-xl"
+            f"w-full h-[82vh] items-end justify-end overflow-y-auto bg-secondary p-6 rounded-xl border border-[{THEME_DEFAULT.get('primary', '#2e712e')}]"
         )
+        messages_col.props('id="chat-container"')
         prev_chat = await _fetch_chat(user_data)
         if prev_chat.get("success"):
             addPreviousMessages(prev_chat, chat_messages, messages_col)
         else: Label("Failed to load chat history")
-
+        run_javascript("""
+            const chatContainer = document.getElementById('chat-container');
+            const observer = new MutationObserver(() => {
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+            });
+            observer.observe(chatContainer, { childList: true, subtree: true });
+        """)
         # Message Box
         message_content = Variable("message_content", "")
         c = createMessageBox(

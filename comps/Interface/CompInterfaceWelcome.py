@@ -1,18 +1,26 @@
 from nicegui import ui
-from UI import Label, Row, RawCol, RawRow, Col, Icon, SoftBtn, AddSpace
-from ENV import THEME_DEFAULT, APP_NAME, FAVICON
+from UI import Label, Raw, Row, RawCol, RawRow, Col, Icon, SoftBtn, AddSpace, Card, Center
+from ENV import THEME_DEFAULT, APP_NAME, FAVICON, QUOTE
 
 def CompInterfaceWelcome():
     with Col(
-        "items-center justify-center w-[96vw] lg:w-[75vw] h-[95vh] p-10 text-center gap-4 rounded-xl",
-        styles=f"background: linear-gradient(to right, {THEME_DEFAULT['primary']}, #ffffff, {THEME_DEFAULT['secondary']});"
+        "items-center justify-center w-[96vw] lg:w-[75vw] h-[94vh] p-10 text-center gap-4 rounded-xl"
     ):
-        with Row('w-full items-center justify-center select-none'):
-            Label(FAVICON, f"text-9xl border-4 border-[{THEME_DEFAULT.get('primary', '#147914')}] py-7 bg-secondary rounded-full")
-            with RawCol('w-fit h-fit gap-0'):
-                Label(APP_NAME, "text-9xl font-extrabold")
-                with RawRow("w-full"):
+        with Center('w-full'):
+            with Row("w-full h-full gap-2 items-center justify-center"):
+                Label(
+                    FAVICON,
+                    f'text-8xl sm:text-9xl py-6 rounded-full '
+                    f'border-6 border-[{THEME_DEFAULT.get("primary", "#1d5c1d")}] '
+                    f'bg-secondary',
+                )
+                with Col():
                     Label(
-                        "Connections that last a lifetime!",
-                        "text-sm sm:text-lg p-1 rounded-sm w-fit md:w-[45%] italic",
+                        APP_NAME, 
+                        "text-7xl sm:text-9xl font-extrabold"
+                    )
+                    if QUOTE:
+                        Label(
+                            QUOTE,
+                            "text-sm sm:text-lg italic",
                         )

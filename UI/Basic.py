@@ -103,15 +103,17 @@ def Input(
         styles: str|None = "",
         model = None,
         default_props: bool|None = True,
+        bindings: dict|None = None,
         **kwargs
     ):
+    bindings = bindings or {}
     inp = ui.input(
         **kwargs
     ).props(
         "dense outlined"*bool(default_props) + ' '+ (props or '')
     ).classes(clas).props(props).style(styles)
     if model:
-        inp.bind_value(model, 'value')
+        inp.bind_value(model, 'value', **bindings)
     return inp
 
 def Button(

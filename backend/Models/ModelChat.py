@@ -96,7 +96,7 @@ class Chat(Model):
 
     async def getMessagesByUserID(self, user_id: int|None):
         SQL = Query(TABLE).select().where(from_id=user_id).orWhere(to_id=user_id).order_by("sent_at").SQL()
-        FETCH = await RUN_SQL(SQL, to_fetch=True)
+        FETCH = await RUN_SQL(SQL, to_fetch=True) # type: ignore
         return FETCH
 
     async def getMessagesByToID(self, to_id: int|None):

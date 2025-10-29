@@ -49,6 +49,9 @@ def initialize_forms():
             name = dict(
                 placeholder = "Dispaly name...",
                 model = form.name,
+                bindings = {
+                    "forward": lambda x: str(x or "").lower().strip()
+                }
             )
         ),
     ],
@@ -64,6 +67,9 @@ def initialize_forms():
             email = dict(
                 placeholder = "Email...",
                 model = form.email,
+                bindings = {
+                    "forward": lambda x: str(x or "").lower().strip()
+                }
             )
         ),
     ],
