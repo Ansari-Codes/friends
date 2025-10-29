@@ -2,7 +2,7 @@ from UI import Raw, SoftBtn, Label, Button, INIT_THEME, Header, Icon, Row
 from utils.Storage import clearUserStorage
 from utils import navigate
 from library.formHandler import Variable
-from comps.Interface import CompChat, CompSideBar
+from comps.Interface import CompChat, CompInterfaceWelcome, CompSideBar
 from nicegui.ui import element, left_drawer, header
 from comps.CompHeaderTitle import CompHeaderTitle
 from backend.Models.ModelAuth import Auth
@@ -22,6 +22,4 @@ async def create():
             'items-center overflow-hidden '
             )
         with chat_box: 
-            Label('Select a contact from the sidebar to start chatting')
-        with Raw.Div('w-full h-fit max-h-[1vh]'):
-            Raw.Html(f"{APP_NAME}, Copyright &copy; 2025", "text-center text-[10px] text-[#333333]")
+            CompInterfaceWelcome.CompInterfaceWelcome()

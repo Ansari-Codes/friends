@@ -88,7 +88,7 @@ async def CompChat(to: dict | None, container: element):
         # Message Show
         chat_messages = Variable("chat_messages", [])
         messages_col = Raw.RawCol(
-            "w-full h-[80vh] overflow-y-auto bg-secondary p-2 rounded-xl"
+            "w-full h-[82vh] overflow-y-auto bg-secondary p-6 rounded-xl"
         )
         prev_chat = await _fetch_chat(user_data)
         if prev_chat.get("success"):
