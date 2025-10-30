@@ -6,7 +6,7 @@ from library.formHandler import Variable
 from utils.Storage import getUserStorage
 from nicegui.ui import element
 from ENV import THEME_DEFAULT
-from nicegui.ui import run_javascript, timer, context
+from nicegui.ui import run_javascript, timer, context, scroll_area
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -128,21 +128,28 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     # Lock layout viewport
     page_layout = context.client.layout
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
-    page_layout.classes('overflow-hidden')  # 🔒 prevent drawer from scrolling
 
     # --- HEADER ---
-    with header.props("dense").classes("bg-primary text-white flex items-center px-4 gap-2 h-[8vh] min-h-[60px] shadow-md"):
-        SoftBtn(on_click=drawer.toggle, icon='menu', clr='white')
-        Label(user_data.get("name", "UnKnown"), "text-white text-xl font-bold truncate")
+    with header.props("dense").classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0"):
+        SoftBtn(
+            on_click=drawer.toggle,
+            icon='menu',
+            py=1, px=1
+        )
+        Label(
+            user_data.get("name", "UnKnown"), 
+            "text-white text-xl font-bold truncate capitalize"
+        )
 
     # --- BODY / CHAT AREA ---
-    with container.classes("flex flex-col w-full h-[84vh] bg-secondary overflow-hidden"):
+    with container.classes("flex flex-col w-full h-full grow shrink bg-secondary"):
         chat_messages = Variable("chat_messages", [])
 
         # ✅ this is the only scrollable section
-        messages_col = Raw.RawCol(
-            "w-full flex-1 overflow-y-auto px-4 py-3 gap-2 items-end justify-end scroll-smooth"
-        )
+        # messages_col = Raw.RawCol(
+        #     "w-full flex-1 overflow-y-auto px-4 py-3 gap-2 items-end justify-end scroll-smooth"
+        # )
+        messages_col = scroll_area().classes("flex h-full grow shrink bg-primary")
         messages_col.props('id="chat-container"')
 
         prev_chat = await _fetch_chat(user_data)
@@ -168,8 +175,9 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
         message_content,
         lambda: send(message_content, chat_messages, messages_col, user_data)
     )
-    c.classes("w-full flex gap-2 items-end px-2 py-3 bg-primary/10 border-t border-primary backdrop-blur-sm")
-
+    c.classes("w-full flex gap-2 items-end backdrop-blur-sm")
+    c.props("dense")
+    footer = footer.props("dense")
     c.move(footer)
 
     # --- RECEIVER (Timer) ---
