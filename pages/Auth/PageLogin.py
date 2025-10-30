@@ -44,7 +44,7 @@ def initialize_forms():
                     placeholder = "Your email or name...",
                     model = form.identifier,
                     bindings = {
-                        "forward": lambda x: str(x or "").lower().strip()
+                        "forward": lambda x: str(x or "").lower()
                     }
                 )
             ),

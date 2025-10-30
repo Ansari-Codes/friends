@@ -50,7 +50,7 @@ def initialize_forms():
                 placeholder = "Dispaly name...",
                 model = form.name,
                 bindings = {
-                    "forward": lambda x: str(x or "").lower().strip()
+                    "forward": lambda x: str(x or "").lower()
                 }
             )
         ),
@@ -68,7 +68,7 @@ def initialize_forms():
                 placeholder = "Email...",
                 model = form.email,
                 bindings = {
-                    "forward": lambda x: str(x or "").lower().strip()
+                    "forward": lambda x: str(x or "").lower()
                 }
             )
         ),

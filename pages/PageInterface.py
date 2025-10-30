@@ -1,4 +1,5 @@
 from UI import Raw, SoftBtn, Label, Button, INIT_THEME, Header, Icon, Row
+from UI.Basic import Footer
 from utils.Storage import clearUserStorage
 from utils import navigate
 from library.formHandler import Variable
@@ -7,6 +8,7 @@ from nicegui.ui import element, left_drawer, header, add_css
 from comps.CompHeaderTitle import CompHeaderTitle
 from backend.Models.ModelAuth import Auth
 from ENV import APP_NAME
+from nicegui.ui import context
 
 async def create():
     theme, _, _2 = await INIT_THEME()
@@ -25,12 +27,16 @@ async def create():
     async def open_chat(contact: dict | None):
         contact = contact or {}
         chat_box.clear()
-        await CompChat.CompChat(contact, chat_box, drawer)
+        await CompChat.CompChat(contact, chat_box, drawer, header, footer)
+    page_layout = context.client.layout
+    page_layout.props(remove='view', add='view="lHh lpR lFf"')
+    header = Header()
     with left_drawer().classes("bg-secondary") as drawer : await CompSideBar.CompSideBar(query_model, open_chat)
     with Raw.RawCol("w-full h-fit gap-1"):
         chat_box = element('div').classes(
-            'flex flex-col w-full h-full justify-center '
-            'items-center overflow-hidden '
+            'flex flex-col w-full h-fit justify-center '
+            'items-center '
             )
         with chat_box:
             await CompInterfaceWelcome.CompInterfaceWelcome(drawer)
+    footer = Footer()

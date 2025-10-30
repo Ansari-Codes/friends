@@ -1,11 +1,12 @@
 import asyncio
 from UI import message, Raw, SoftBtn, Row, Col, TextArea, AddSpace, Notify, Label
+from UI.Basic import Header
 from backend.Controllers import ControlChat
 from library.formHandler import Variable
 from utils.Storage import getUserStorage
 from nicegui.ui import element
 from ENV import THEME_DEFAULT
-from nicegui.ui import run_javascript, timer
+from nicegui.ui import run_javascript, timer, context
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -34,13 +35,6 @@ async def send(model, chat, col, to: dict|None = None):
     else:
         Notify("We cannot send your message!", color="error", icon="error")
         print(response.get("errors"))
-
-def createUserInfo(info: dict, drawer):
-    with Raw.RawRow() as r:
-        SoftBtn(on_click=drawer.toggle, icon='menu')
-        Label(f"{info.get('name', '').title()} ({info.get('email', '')})",
-            "text-white font-medium truncate px-2")
-    return r
 
 def createMessageBox(model=None, on_send=lambda:()):
     with Raw.RawRow("") as r:
@@ -119,46 +113,67 @@ async def receiveMessage(container: element, chat: Variable, to: dict|None = Non
         addMessage(msg, container)
         container.update()
 
-async def CompChat(to: dict | None, container: element, drawer):
+async def CompChat(to: dict | None, container: element, drawer, header, footer):
     to = to or {}
     user_data = to.get("user", {})
     if not user_data or not user_data.get("id"):
         Notify("Invalid contact selected", color='red', icon='error')
         return
-    container.clear()
-    with container.classes("gap-1 w-full"):
-        # User Info
-        u = createUserInfo(user_data, drawer)
-        u.classes("w-full absolute top-0 left-0 bg-primary p-2 flex gap-2 items-center z-50")
 
-        # Message Show
+    # Reset layout
+    container.clear()
+    header.clear()
+    footer.clear()
+
+    # Lock layout viewport
+    page_layout = context.client.layout
+    page_layout.props(remove='view', add='view="lHh lpR lFf"')
+    page_layout.classes('overflow-hidden')  # 🔒 prevent drawer from scrolling
+
+    # --- HEADER ---
+    with header.props("dense").classes("bg-primary text-white flex items-center px-4 gap-2 h-[8vh] min-h-[60px] shadow-md"):
+        SoftBtn(on_click=drawer.toggle, icon='menu', clr='white')
+        Label(user_data.get("name", "UnKnown"), "text-white text-xl font-bold truncate")
+
+    # --- BODY / CHAT AREA ---
+    with container.classes("flex flex-col w-full h-[84vh] bg-secondary overflow-hidden"):
         chat_messages = Variable("chat_messages", [])
+
+        # ✅ this is the only scrollable section
         messages_col = Raw.RawCol(
-            f"w-full h-[86vh] absolute top-4 mt-6 mb-6 items-end justify-end overflow-y-auto p-6"
+            "w-full flex-1 overflow-y-auto px-4 py-3 gap-2 items-end justify-end scroll-smooth"
         )
         messages_col.props('id="chat-container"')
+
         prev_chat = await _fetch_chat(user_data)
         if prev_chat.get("success"):
             addPreviousMessages(prev_chat, chat_messages, messages_col)
-        else: Label("Failed to load chat history")
-        
+        else:
+            Label("Failed to load chat history", "text-red-400 text-center")
+
         run_javascript("""
             const chatContainer = document.getElementById('chat-container');
-            chatContainer.scrollTop = chatContainer.scrollHeight;
-            const observer = new MutationObserver(() => {
+            if (chatContainer) {
                 chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
-            observer.observe(chatContainer, { childList: true, subtree: true });
+                const observer = new MutationObserver(() => {
+                    chatContainer.scrollTop = chatContainer.scrollHeight;
+                });
+                observer.observe(chatContainer, { childList: true, subtree: true });
+            }
         """)
 
-        # Message Box
-        message_content = Variable("message_content", "")
-        c = createMessageBox(
-                message_content,
-                lambda: send(message_content, chat_messages, messages_col, user_data)
-            )
-        c.classes("w-full absolute bottom-0 left-0 p-2 flex gap-2 items-end")
-        async def receiver_task():
-            await receiveMessage(messages_col, chat_messages, user_data)
-        await receiveMessage(container, chat_messages, to.get("user"))
-        receiver = timer(2.0, receiver_task)
+    # --- FOOTER / MESSAGE BOX ---
+    message_content = Variable("message_content", "")
+    c = createMessageBox(
+        message_content,
+        lambda: send(message_content, chat_messages, messages_col, user_data)
+    )
+    c.classes("w-full flex gap-2 items-end px-2 py-3 bg-primary/10 border-t border-primary backdrop-blur-sm")
+
+    c.move(footer)
+
+    # --- RECEIVER (Timer) ---
+    import asyncio
+    async def receiver_task():
+        await receiveMessage(messages_col, chat_messages, user_data)
+    timer(2.0, lambda: asyncio.create_task(receiver_task()))

@@ -50,6 +50,8 @@ async def create(data: dict) -> dict:
     result = []
     if not errors:
         try:
+            data['name'] = data.get("name", "").strip().lower()
+            data['email'] = data.get("email", "").strip().lower()
             result = await Auth().create(data)
             if not isinstance(result, (list, tuple)):
                 result = [result]
