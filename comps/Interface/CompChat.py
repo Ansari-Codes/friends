@@ -59,7 +59,7 @@ def createMessageBox(model=None, on_send=lambda:()):
         )
     return r
 
-def addMessage(msg: dict, container):
+def addMessage(msg: dict, container: scroll_area):
     with Row(clas="w-full h-fit items-center p-0 m-0 gap-0") as r:
         sent = msg.get("from_id") == getUserId()
         if sent: 
@@ -70,6 +70,7 @@ def addMessage(msg: dict, container):
             AddSpace()
     r.move(container)
     container.update()
+    container.scroll_to(percent=100, duration=0.2)
 
 def addPreviousMessages(prev_chat, chat_messages, contianer):
     chat_messages.value = prev_chat.get("data", [])
@@ -77,7 +78,7 @@ def addPreviousMessages(prev_chat, chat_messages, contianer):
         for msg in page:
             addMessage(msg, contianer)
 
-async def receiveMessage(container: element, chat: Variable, to: dict|None = None):
+async def receiveMessage(container: scroll_area, chat: Variable, to: dict|None = None):
     to = to or {}
     response = await ControlChat.receive({
         "from_id": to.get("id"),
@@ -124,6 +125,8 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     container.clear()
     header.clear()
     footer.clear()
+    header.set_visibility(True)
+    footer.set_visibility(True)
 
     # Lock layout viewport
     page_layout = context.client.layout
@@ -142,14 +145,14 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
         )
 
     # --- BODY / CHAT AREA ---
-    with container.classes("flex flex-col w-full h-full grow shrink bg-secondary"):
+    with container.classes("flex flex-col w-full h-[83vh] space-x-0 space-y-0 p-0 m-0"):
         chat_messages = Variable("chat_messages", [])
 
         # ✅ this is the only scrollable section
         # messages_col = Raw.RawCol(
         #     "w-full flex-1 overflow-y-auto px-4 py-3 gap-2 items-end justify-end scroll-smooth"
         # )
-        messages_col = scroll_area().classes("flex h-full grow shrink bg-primary")
+        messages_col = scroll_area().classes("h-[81vh]")
         messages_col.props('id="chat-container"')
 
         prev_chat = await _fetch_chat(user_data)
@@ -157,17 +160,6 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
             addPreviousMessages(prev_chat, chat_messages, messages_col)
         else:
             Label("Failed to load chat history", "text-red-400 text-center")
-
-        run_javascript("""
-            const chatContainer = document.getElementById('chat-container');
-            if (chatContainer) {
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-                const observer = new MutationObserver(() => {
-                    chatContainer.scrollTop = chatContainer.scrollHeight;
-                });
-                observer.observe(chatContainer, { childList: true, subtree: true });
-            }
-        """)
 
     # --- FOOTER / MESSAGE BOX ---
     message_content = Variable("message_content", "")
@@ -177,6 +169,7 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     )
     c.classes("w-full flex gap-2 items-end backdrop-blur-sm")
     c.props("dense")
+    footer = footer.classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0")
     footer = footer.props("dense")
     c.move(footer)
 

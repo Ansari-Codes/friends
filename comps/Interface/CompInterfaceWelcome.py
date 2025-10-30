@@ -3,9 +3,9 @@ from UI import Label, Raw, Row, RawCol, RawRow, Col, Icon, SoftBtn, AddSpace, Ca
 from ENV import THEME_DEFAULT, APP_NAME, FAVICON, QUOTE
 
 async def CompInterfaceWelcome(drawer):
-    theme, _, _2 = await INIT_THEME()
+    theme, *_ = await INIT_THEME()
     with Col(
-        "items-center justify-center w-[96vw] lg:w-[75vw] h-[94vh] p-10 text-center gap-6 rounded-xl"
+        "items-center justify-center w-[96vw] lg:w-[75vw] h-[85vh] p-10 text-center gap-6 rounded-xl"
     ):
         # Main Logo + App Name
         with Center('w-full'):

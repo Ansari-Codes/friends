@@ -32,6 +32,7 @@ async def create():
     page_layout.props(remove='view', add='view="lHh lpR lFf"')
     header = Header()
     with left_drawer().classes("bg-secondary") as drawer : await CompSideBar.CompSideBar(query_model, open_chat)
+    footer = Footer()
     with Raw.RawCol("w-full h-fit gap-1"):
         chat_box = element('div').classes(
             'flex flex-col w-full h-fit justify-center '
@@ -39,4 +40,5 @@ async def create():
             )
         with chat_box:
             await CompInterfaceWelcome.CompInterfaceWelcome(drawer)
-    footer = Footer()
+            header.set_visibility(False)
+            footer.set_visibility(False)
