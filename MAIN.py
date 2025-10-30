@@ -4,5 +4,5 @@ from nicegui import ui
 
 ui.run(
     favicon=FAVICON, title=APP_NAME,
-    storage_secret = SECRET,
+    storage_secret = SECRET
     )

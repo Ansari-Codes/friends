@@ -71,7 +71,7 @@ def initialize_forms():
     return form, errs, inputs_and_labels
 
 async def create():
-    INIT_THEME()
+    await INIT_THEME()
     form, errs, inputs_and_labels = initialize_forms()
     with Center(clas="w-full h-full"):
         with Card("max-w-md w-full h-fit flex flex-col"):

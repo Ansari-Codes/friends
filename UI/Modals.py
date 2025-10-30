@@ -2,8 +2,8 @@ from typing import Callable
 from nicegui import ui
 from UI.Basic import RawLabel, RawRow, SoftBtn, Icon, AddSpace
 
-def Notify(message:str = '', **kwargs):
-    ui.notify(message, position='top-right', close_button='❌', **kwargs)
+def Notify(message:str = '', position='top-right', close_button='✖', **kwargs):
+    ui.notify(message, position=position, close_button=close_button, **kwargs)
 
 def DialogHeader(
         title: str = "",
@@ -34,6 +34,9 @@ def DialogHeader(
                 **close_config
             )
     return header_
+
+def Dialog():
+    return ui.dialog().props('backdrop-filter="hue-rotate(10deg)"')
 
 # def Dialog(
 #         dialog: ui.dialog|None = None,

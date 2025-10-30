@@ -3,7 +3,7 @@ from comps.Welcome import CompHero
 from UI import INIT_THEME
 
 async def create():
-    INIT_THEME()
+    await INIT_THEME()
     CompHeader.CompHeader()
-    CompHero.CompHero()
+    await CompHero.CompHero()
     CompFooter.CompFooter()

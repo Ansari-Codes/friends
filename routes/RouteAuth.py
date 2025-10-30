@@ -1,15 +1,13 @@
-from .ROUTES import LOGIN, SIGNUP, isAuthenticated
+from .ROUTES import LOGIN, SIGNUP, createLoadingScreen
 from nicegui.ui import page
 from pages.Auth.PageSignUp import create as create_signup
 from pages.Auth.PageLogin import create as create_login
-from utils import navigate
+from ENV import APP_NAME
 
-@page(LOGIN)
+@page(LOGIN, title=APP_NAME + " - Login")
 async def render_login():
-    if isAuthenticated():navigate("/")
-    await create_login()
+    await createLoadingScreen(create_login, auth=False)
 
-@page(SIGNUP)
+@page(SIGNUP, title=APP_NAME + " - SignUp")
 async def render_signup():
-    if isAuthenticated():navigate("/")
-    await create_signup()
+    await createLoadingScreen(create_signup, auth=False)

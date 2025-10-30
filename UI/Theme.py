@@ -2,8 +2,8 @@ from nicegui import ui, app
 from ENV import THEME_DEFAULT
 from utils.Auth import isAuthenticated
 
-def INIT_THEME():
-    if not (app.storage.user.get('theme') and isAuthenticated()):
+async def INIT_THEME():
+    if not (app.storage.user.get('theme') and (await isAuthenticated())):
         app.storage.user.update({"theme": THEME_DEFAULT.copy()})
     else:
         app.storage.user.update({"theme": THEME_DEFAULT.copy()})
@@ -18,4 +18,4 @@ def INIT_THEME():
         font-size: 16px;
     }
     """, shared=True)
-    return colors, moder, change
+    return theme, moder, change

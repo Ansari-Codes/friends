@@ -6,18 +6,18 @@ from comps.Interface import CompChat, CompInterfaceWelcome, CompSideBar
 from nicegui.ui import element, left_drawer, header, add_css
 from comps.CompHeaderTitle import CompHeaderTitle
 from backend.Models.ModelAuth import Auth
-from ENV import APP_NAME, THEME_DEFAULT
+from ENV import APP_NAME
 
 async def create():
-    INIT_THEME()
+    theme, _, _2 = await INIT_THEME()
     add_css(f"""
         body {{
             background: linear-gradient(
                 135deg, 
-                {THEME_DEFAULT['primary']} 0%, 
-                {THEME_DEFAULT['primary']}88 40%,
-                white 60%, 
-                {THEME_DEFAULT['secondary']} 100%
+                {theme['primary']} 0%, 
+                {theme['primary']}88 40%,
+                white 60%,
+                {theme['secondary']} 100%
             );
         }}
     """)
@@ -25,12 +25,12 @@ async def create():
     async def open_chat(contact: dict | None):
         contact = contact or {}
         chat_box.clear()
-        await CompChat.CompChat(contact, chat_box)
-    with left_drawer().classes("bg-secondary"): await CompSideBar.CompSideBar(query_model, open_chat)
+        await CompChat.CompChat(contact, chat_box, drawer)
+    with left_drawer().classes("bg-secondary") as drawer : await CompSideBar.CompSideBar(query_model, open_chat)
     with Raw.RawCol("w-full h-fit gap-1"):
         chat_box = element('div').classes(
             'flex flex-col w-full h-full justify-center '
             'items-center overflow-hidden '
             )
-        with chat_box: 
-            CompInterfaceWelcome.CompInterfaceWelcome()
+        with chat_box:
+            await CompInterfaceWelcome.CompInterfaceWelcome(drawer)

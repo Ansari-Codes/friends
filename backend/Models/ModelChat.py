@@ -20,12 +20,9 @@ class Chat(Model):
         reply_to_id = obj.get("reply_to_id")
         status = obj.get("status", "pending")
 
-        if not from_id:
-            raise Required("from_id")
-        if not to_id:
-            raise Required("to_id")
-        if not content:
-            raise Required("content")
+        if not from_id: raise Required("from_id")
+        if not to_id: raise Required("to_id")
+        if not content: raise Required("content")
         if status not in ALLOWED_STATUS:
             raise InvalidChoice(f"status must be one of {ALLOWED_STATUS}")
 
@@ -39,7 +36,11 @@ class Chat(Model):
         ).SQL()
         await RUN_SQL(SQL)
         FETCH = Query(TABLE).select().where(from_id=from_id, to_id=to_id).order_by("id", direction='DESC').limit(1).SQL()
-        return await RUN_SQL(FETCH, True)
+        FETCH = await RUN_SQL(FETCH, True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
+        return FETCH
 
     # ----------------- UPDATE -----------------
     async def _update(self, obj: dict):
@@ -64,7 +65,11 @@ class Chat(Model):
         SQL = Query(TABLE).update(**update_data).where(id=message_id).SQL()
         await RUN_SQL(SQL)
         FETCH = Query(TABLE).select().where(id=message_id).SQL()
-        return await RUN_SQL(FETCH, True)
+        FETCH = await RUN_SQL(FETCH, True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
+        return FETCH
 
     # ----------------- DELETE -----------------
     async def _delete(self, obj: dict):
@@ -92,26 +97,41 @@ class Chat(Model):
     async def getMessageByID(self, message_id: int|None):
         SQL = Query(TABLE).select().where(id=message_id).SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
         return FETCH
 
     async def getMessagesByUserID(self, user_id: int|None):
         SQL = Query(TABLE).select().where(from_id=user_id).orWhere(to_id=user_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True) # type: ignore
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
         return FETCH
 
     async def getMessagesByToID(self, to_id: int|None):
         SQL = Query(TABLE).select().where(to_id=to_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
         return FETCH
 
     async def getMessagesByFromID(self, from_id: int|None):
         SQL = Query(TABLE).select().where(from_id=from_id).order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
         return FETCH
 
     async def searchMessagesInContent(self, keyword: str):
         SQL = Query(TABLE).select().where(content__like=f"%{keyword}%").order_by("sent_at").SQL()
         FETCH = await RUN_SQL(SQL, to_fetch=True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
         return FETCH
 
     async def getFullChat(self, from_id: int|None, to_id: int|None, page_size: int|None = 20):
@@ -126,6 +146,9 @@ class Chat(Model):
         ORDER BY sent_at;
         """
         messages = await RUN_SQL(SQL, to_fetch=True)
+        if messages: 
+            for F in messages:
+                F['content'] = Query._decode_value(F['content'])
         if page_size:
             pages = [messages[i:i+page_size] for i in range(0, len(messages), page_size)]
             return pages
@@ -139,11 +162,15 @@ class Chat(Model):
             raise NotFound(f"Message with id={message_id} not found.")
         SQL = Query(TABLE).update(
             status='seen',
-            seen_at=datetime.datetime.utcnow()
+            seen_at=f'{str(datetime.datetime.now())}'
         ).where(id=message_id).SQL()
-        await RUN_SQL(SQL)
+        await RUN_SQL(SQL) # type: ignore
         FETCH = Query(TABLE).select().where(id=message_id).SQL()
-        return await RUN_SQL(FETCH, True)
+        FETCH =  await RUN_SQL(FETCH, True)
+        if FETCH: 
+            for F in FETCH:
+                F['content'] = Query._decode_value(F['content'])
+        return FETCH
 
     # ----------------- PUBLIC INTERFACE -----------------
     async def implement(self, mode: Literal['c', 'u', 'd'], obj: dict | list = {}):

@@ -1,21 +1,22 @@
-from UI import Label, Card, Center, SoftBtn, Raw, AddSpace
+from UI import Label, Card, Center, SoftBtn, Raw, AddSpace, INIT_THEME
 from routes import ROUTES
 from ENV import APP_NAME, FAVICON
-from ENV import THEME_DEFAULT, QUOTE
+from ENV import QUOTE
 
 def MessageFields():
     pass
 
-def CompHero():
+async def CompHero():
+    theme, _, _2 = await INIT_THEME()
     with Card(
         "w-full h-fit p-10 rounded-3xl shadow-lg",
         styles=f"""
         background: linear-gradient(
             135deg, 
-            {THEME_DEFAULT['primary']} 0%, 
-            {THEME_DEFAULT['primary']}88 40%,
+            {theme['primary']} 0%, 
+            {theme['primary']}88 40%,
             white 60%, 
-            {THEME_DEFAULT['secondary']} 100%
+            {theme['secondary']} 100%
         );
         """
     ):
@@ -31,7 +32,7 @@ def CompHero():
                             styles=f"""
                                 background: linear-gradient(
                                     to right, 
-                                    {THEME_DEFAULT['secondary']}, 
+                                    {theme['secondary']}, 
                                     transparent
                                 );
                             """)

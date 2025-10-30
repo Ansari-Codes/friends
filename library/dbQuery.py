@@ -60,25 +60,24 @@ class Query:
 
     # --- internal helper for condition building ---
     def _build_condition(self, key, value):
-        if isinstance(value, str):
-            value = value.replace("'", "''")
-            return f"{key}='{value}'"
-        elif isinstance(value, (tuple, list)) and len(value) == 2:
+        if isinstance(value, (tuple, list)) and len(value) == 2:
             op, val = value
-            if isinstance(val, str):
-                val = val.replace("'", "''")
-                return f"{key}{op}'{val}'"
-            return f"{key}{op}{val}"
+            return f"{key}{op}{self._escape_value(val)}"
         else:
-            return f"{key}={value}"
+            return f"{key}={self._escape_value(value)}"
 
     def _escape_value(self, v):
         if v is None:
             return 'NULL'
         if isinstance(v, str):
-            v = v.replace("'", "''")  # SQL standard escape
+            v = v.replace("'", "''")
+            v = v.encode('unicode_escape').decode('utf-8')
             return f"'{v}'"
         return str(v)
+
+    @staticmethod
+    def _decode_value(v: str):
+        return v.encode('utf-8').decode('unicode_escape')
 
     # --- SQL BUILDER ---
     def SQL(self) -> str:

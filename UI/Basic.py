@@ -79,7 +79,6 @@ def SoftBtn(
     if '/' in clr: c = clr.split('/')[0]
     else: c = clr
     if c not in colors+['transparent']: c = f"[{c}]"
-    print(c)
     icon_config = icon_config or {}
     base_classes = (
         f"flex items-center{' justify-'+justify if justify else ''} gap-0 text-{text_align or 'center'} "

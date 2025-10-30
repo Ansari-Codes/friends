@@ -68,7 +68,9 @@ async def receive(data: dict) -> dict:
         errors["to_id"] = "to_id is required."
     if not errors:
         pages = await Chat().getFullChat(from_id, to_id)
-        last_message = pages[-1] if pages and pages[-1] else None
+        last_message = None
+        if pages and pages[-1]:  # Check if there are pages and the last page is not empty
+            last_message = pages[-1][-1]  # Get the last message from the last page
         if last_message:
             message_id = last_message.get("id") #type:ignore
             await Chat().markAsSeen(message_id)
