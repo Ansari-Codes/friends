@@ -148,10 +148,6 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     with container.classes("flex flex-col w-full h-[83vh] space-x-0 space-y-0 p-0 m-0"):
         chat_messages = Variable("chat_messages", [])
 
-        # ✅ this is the only scrollable section
-        # messages_col = Raw.RawCol(
-        #     "w-full flex-1 overflow-y-auto px-4 py-3 gap-2 items-end justify-end scroll-smooth"
-        # )
         messages_col = scroll_area().classes("h-[81vh]")
         messages_col.props('id="chat-container"')
 
@@ -169,10 +165,9 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     )
     c.classes("w-full flex gap-2 items-end backdrop-blur-sm")
     c.props("dense")
-    footer = footer.classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0")
+    footer = footer.classes("bg-primary text-white flex items-end min-h-[7vh] max-h-[500px] p-0 px-2 py-2 space-x-0 space-y-0")
     footer = footer.props("dense")
     c.move(footer)
-
     # --- RECEIVER (Timer) ---
     import asyncio
     async def receiver_task():
