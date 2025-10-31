@@ -3,7 +3,7 @@ from UI import Label, Raw, Row, RawCol, RawRow, Col, Icon, SoftBtn, AddSpace, Ca
 from ENV import THEME_DEFAULT, APP_NAME, FAVICON, QUOTE
 
 async def CompInterfaceWelcome(drawer):
-    theme, *_ = await INIT_THEME()
+    theme = await INIT_THEME()
     with Col(
         "items-center justify-center w-[96vw] lg:w-[75vw] h-[85vh] p-10 text-center gap-6 rounded-xl"
     ):
@@ -13,13 +13,13 @@ async def CompInterfaceWelcome(drawer):
                 Label(
                     FAVICON,
                     f'text-8xl sm:text-9xl py-6 rounded-full '
-                    f'border-6 border-[{theme.get("primary", "#1d5c1d")}] '
+                    f'border-6 border-[var(--q-primary)] '
                     f'bg-secondary',
                 )
                 with Col("gap-2 items-center"):
                     Label(
                         APP_NAME, 
-                        "text-7xl sm:text-9xl font-extrabold"
+                        "text-7xl sm:text-9xl font-extrabold text-text"
                     )
                     if QUOTE:
                         Label(

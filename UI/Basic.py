@@ -4,6 +4,7 @@ from .Raw import RawRow, RawLabel
 from nicegui.events import GenericEventArguments
 from .Layouts import Row
 from ENV import THEME_DEFAULT
+from EXCEPTIONS import InvalidChoice
 
 def Label(
         text: str = "", 
@@ -72,17 +73,18 @@ def SoftBtn(
         active_effects: bool = True,
         text_align: Literal['left', 'center', 'right'] = 'center',
         rounded: Literal['none', 'xs', 'sm', 'md', 'lg', 'xl', '2xl', 'full']|None = 'sm',
-        justify: Literal['center', 'between', None] = 'center'
+        justify: Literal['center', 'between', None] = 'center',
+        text_clr: str = "",
     ):
     colors = list(THEME_DEFAULT.keys())
-    clr = clr or "transparent"
-    if '/' in clr: c = clr.split('/')[0]
-    else: c = clr
+    c = clr or "transparent"
+    tc = text_clr or "white"
     if c not in colors+['transparent']: c = f"[{c}]"
+    if tc not in colors+['transparent']: tc = f"[{tc}]"
     icon_config = icon_config or {}
     base_classes = (
         f"flex items-center{' justify-'+justify if justify else ''} gap-0 text-{text_align or 'center'} "
-        f"px-{px} py-{py} rounded-{rounded or 'none'} text-white text-[14px] font-medium "
+        f"px-{px} py-{py} rounded-{rounded or 'none'} text-{tc} text-[14px] font-medium "
         f"transition-all duration-200 ease-in-out "
         f"bg-{c} shadow-md {'hover:shadow-lg'*bool(hover_effects)} {'active:scale-95'*bool(active_effects)} "
         f"select-none cursor-pointer {'ripple'*bool(ripple)} no-underline"
@@ -103,17 +105,42 @@ def Input(
         model = None,
         default_props: bool|None = True,
         bindings: dict|None = None,
+        type: Literal['text', 'color', 'number'] = 'text',
         **kwargs
     ):
     bindings = bindings or {}
-    inp = ui.input(
-        **kwargs
-    ).props(
-        "dense outlined"*bool(default_props) + ' '+ (props or '')
-    ).classes(clas).props(props).style(styles)
-    if model:
-        inp.bind_value(model, 'value', **bindings)
+    inp = None
+    if type == "text":
+        inp = ui.input(**kwargs)
+    elif type == "color":
+        inp = ui.color_input(**kwargs)
+    elif type == 'number':
+        inp = ui.number(**kwargs)
+    else:
+        raise InvalidChoice("Input should only be 'text', 'color' or 'number'.")
+    if inp:
+        inp.classes("bg-inp rounded-sm")
+        inp.props('input-class="text-text-secondary"')
+        inp.props("dense outlined"*bool(default_props) + ' '+ (props or '')).classes(clas).style(styles)
+        if model: inp.bind_value(model, 'value', **bindings)
     return inp
+
+def Select(
+        clas: str|None = "", 
+        props: str|None = "",
+        styles: str|None = "",
+        model = None,
+        options: list|dict|None = None,
+        default_props: bool|None = True,
+        bindings: dict|None = None,
+        **kwargs
+    ):
+    bindings = bindings or {}
+    slc = ui.select(options=options or [], **kwargs)
+    slc.props("dense outlined"*bool(default_props) + ' '+ (props or '')).classes(clas).style(styles)
+    if model: slc.bind_value(model, 'value', **bindings)
+    slc.classes("bg-inp rounded-sm").props('input-class="text-text-secondary"')
+    return slc
 
 def Button(
         text: str = "", 
@@ -150,6 +177,7 @@ def TextArea(
     if autogrow: ta.props('autogrow')
     ta.classes(inner_classes)
     ta.classes(clas).props('dense outlined').props(props).style(styles)
+    ta.classes("bg-inp rounded-sm").props('input-class="text-text-secondary"')
     return ta
 
 def AddSpace():

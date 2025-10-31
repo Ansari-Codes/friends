@@ -121,19 +121,8 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
         Notify("Invalid contact selected", color='red', icon='error')
         return
 
-    # Reset layout
-    container.clear()
-    header.clear()
-    footer.clear()
-    header.set_visibility(True)
-    footer.set_visibility(True)
-
-    # Lock layout viewport
-    page_layout = context.client.layout
-    page_layout.props(remove='view', add='view="lHh lpR lFf"')
-
     # --- HEADER ---
-    with header.props("dense").classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0"):
+    with header:
         SoftBtn(
             on_click=drawer.toggle,
             icon='menu',
@@ -141,7 +130,7 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
         )
         Label(
             user_data.get("name", "UnKnown"), 
-            "text-white text-xl font-bold truncate capitalize"
+            "text-text-primary text-xl font-bold truncate capitalize"
         )
 
     # --- BODY / CHAT AREA ---
@@ -165,8 +154,6 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     )
     c.classes("w-full flex gap-2 items-end backdrop-blur-sm")
     c.props("dense")
-    footer = footer.classes("bg-primary text-white flex items-end min-h-[7vh] max-h-[500px] p-0 px-2 py-2 space-x-0 space-y-0")
-    footer = footer.props("dense")
     c.move(footer)
     # --- RECEIVER (Timer) ---
     import asyncio

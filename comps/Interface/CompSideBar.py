@@ -55,9 +55,9 @@ async def add_contact(dialog: dial, contacts: list, lister, cntcts, mch):
     dialog.clear()
     dialog.props('persistent="false"')
     with dialog:
-        with Card('p-0 m-0'):
+        with Card('p-0 m-0 bg-card'):
             with Div('w-full h-full'):
-                DialogHeader(title="Add Contact", on_close=dialog.close)
+                DialogHeader(title="Add Contact", on_close=dialog.close).classes("bg-primary")
                 with RawCol('p-2 m-0 gap-2'):
                     Input(
                         "w-full flex flex-grow flex-shrink",
@@ -88,6 +88,7 @@ async def list_contacts(contacts, open_chat_callback=None):
                 text_align='left',
                 icon='person',
                 justify=None,
+                text_clr='text-secondary',
             )
             contcts.append({
                 'btn': widget,
@@ -96,13 +97,13 @@ async def list_contacts(contacts, open_chat_callback=None):
     return contcts, container
 
 async def createSearch(contacts: list, model: Variable):
-    theme, _, _2 = await INIT_THEME()
+    theme = await INIT_THEME()
     names = [i.get("user", {}).get("name") for i in contacts]
-    with Row(f"w-full border border-[{theme.get('primary', '#0f0')}] rounded-sm gap-0") as cont:
+    with Row(f"w-full border border-[var(--q-primary)] rounded-sm gap-0") as cont:
         Input(
             "flex flex-grow flex-shrink px-2 bg-transparent", 
             autocomplete=names,
-            props='dense borderless input-class="bg-transparent"',
+            props='dense borderless input-class="bg-transparent text-text-primary"',
             default_props=False,
             model=model,
         )
@@ -113,28 +114,30 @@ async def createSearch(contacts: list, model: Variable):
             active_effects=True,
             hover_effects=True,
             px=2,
-        )
+        ).classes("text-text-primary")
     cont.classes("w-full")
 
-async def createUISettings():
+async def createUISettings(handler):
     widget = SoftBtn(
         text="THEME",
         clr="primary",
         text_align='left',
         justify=None,
         icon='colorize',
-        clas="w-full hover:bg-primary gap-2 shadow-none",
+        clas="w-full hover:bg-primary gap-2 shadow-none text-text-primary",
+        on_click=handler
     )
     return widget
 
-async def createAccountSettings():
+async def createAccountSettings(handler):
     widget = SoftBtn(
         text="PROFILE",
         clr="primary",
         text_align='left',
         icon='person_2',
         justify=None,
-        clas="w-full hover:bg-primary gap-2 shadow-none",
+        clas="w-full hover:bg-primary gap-2 shadow-none text-text-primary",
+        on_click=handler
     )
     return widget
 
@@ -145,18 +148,18 @@ async def createAddContact(dialog, contacts, lister, cntcts, mch):
         text_align='left',
         justify=None,
         icon='person_add',
-        clas="w-full hover:bg-primary gap-2 shadow-none",
+        clas="w-full hover:bg-primary gap-2 shadow-none text-text-primary",
         on_click=lambda d=dialog, c=contacts, l=lister, cc=cntcts, mch=mch: add_contact(d, c, l, cntcts, mch)
     )
     return widget
 
-async def CompSideBar(model_query: Variable, open_chat_callback=None):
+async def CompSideBar(model_query: Variable, open_chat_callback=None, others=None):
     response = (await get_contacts(getUserStorage().get("id"))) or {}
     contacts = response.get("data", [])
     with RawCol('gap-2 w-full'):
         Label(
             getUserStorage().get("name", "UnKnown"),
-            "w-full text-center text-2xl font-bold text-white capitalize bg-primary rounded-xl p-1 break-words px-4"
+            "w-full text-center text-2xl font-bold text-text-primary capitalize bg-primary rounded-xl p-1 break-words px-4"
         )
         await createSearch(contacts, model_query)
     cntcts,lister = await list_contacts(contacts, open_chat_callback)
@@ -164,5 +167,6 @@ async def CompSideBar(model_query: Variable, open_chat_callback=None):
     AddSpace()
     with RawCol('gap-1 w-full'):
         await createAddContact(dialog, contacts, lister, cntcts, open_chat_callback)
-        await createAccountSettings()
-        await createUISettings()
+        if others:
+            await createAccountSettings(lambda: others('a'))
+            await createUISettings(lambda: others('u'))

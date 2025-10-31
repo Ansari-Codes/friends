@@ -7,16 +7,15 @@ def MessageFields():
     pass
 
 async def CompHero():
-    theme, _, _2 = await INIT_THEME()
+    theme = await INIT_THEME()
     with Card(
         "w-full h-fit p-10 rounded-3xl shadow-lg",
         styles=f"""
         background: linear-gradient(
             135deg, 
-            {theme['primary']} 0%, 
-            {theme['primary']}88 40%,
-            white 60%, 
-            {theme['secondary']} 100%
+            var(--q-primary) 0%, 
+            var(--q-accent) 50%, 
+            var(--q-secondary) 100%
         );
         """
     ):
@@ -32,7 +31,7 @@ async def CompHero():
                             styles=f"""
                                 background: linear-gradient(
                                     to right, 
-                                    {theme['secondary']}, 
+                                    var(--q-secondary), 
                                     transparent
                                 );
                             """)

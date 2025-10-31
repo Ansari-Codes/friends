@@ -3,19 +3,14 @@ from ENV import THEME_DEFAULT
 from utils.Auth import isAuthenticated
 
 async def INIT_THEME():
-    if not (app.storage.user.get('theme') and (await isAuthenticated())):
-        app.storage.user.update({"theme": THEME_DEFAULT.copy()})
-    else:
+    if not app.storage.user.get('theme'):
         app.storage.user.update({"theme": THEME_DEFAULT.copy()})
     theme = app.storage.user.get('theme', THEME_DEFAULT)
     colors = ui.colors(**theme)
-    mode = app.storage.user.get('dark', None)
-    moder = ui.dark_mode(mode)
-    def change(value):
-        moder.value = value
+    ui.dark_mode(False)
     ui.add_css("""
     .q-notification__message{
         font-size: 16px;
     }
     """, shared=True)
-    return theme, moder, change
+    return theme
