@@ -156,7 +156,6 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     c.props("dense")
     c.move(footer)
     # --- RECEIVER (Timer) ---
-    import asyncio
     async def receiver_task():
         await receiveMessage(messages_col, chat_messages, user_data)
-    timer(2.0, lambda: asyncio.create_task(receiver_task()))
+    timer(2.0, receiver_task)
