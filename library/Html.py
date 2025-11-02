@@ -2,24 +2,20 @@ import markdown
 import bleach
 from bs4 import BeautifulSoup
 from nicegui.ui import add_css
+from comps.Interface.INTERFACE import ANIMATIONS
 
 def markdown_to_safe_html(md_text: str) -> str:
-    add_css("""
-@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes bounce { 0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);} }
-@keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.5;} }
-
-.animate-fadeIn { animation: fadeIn 0.6s ease-out forwards; }
-.animate-bounce { animation: bounce 1s infinite; }
-.animate-pulse { animation: pulse 1.5s infinite; }
-.animate-slideUp { animation: fadeIn 0.6s ease-out forwards; }
-
-.animate-fadeIn-cont { animation: fadeIn 0.6s ease-out infinite; }
-.animate-bounce-cont { animation: bounce 1s infinite; }
-.animate-pulse-cont { animation: pulse 1.5s infinite; }
-.animate-slideUp-cont { animation: fadeIn 0.6s ease-out infinite; }
-""")
-
+    css_string = ''
+    for name, animation in ANIMATIONS.items():
+        css_string += f"""
+                @keyframes {name} {{
+                {animation['keyframes']}
+                }}
+                .animate-{name} {{
+                    {animation['class_string']}
+                }}
+            """
+    add_css(css_string, shared=True)
     html = markdown.markdown(md_text, extensions=['extra'])
 
     allowed_tags = [

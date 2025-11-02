@@ -7,6 +7,7 @@ from nicegui.ui import element
 from nicegui.ui import run_javascript, menu, timer, scroll_area, context_menu, fab
 from datetime import datetime
 import json
+from comps.Interface.INTERFACE import STICKERS
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -35,6 +36,19 @@ async def send(model, chat, col, to: dict|None = None):
     else:
         Notify("We cannot send your message!", color="error", icon="error")
 
+def _create_sticker_chooser(model):
+    with Raw.Div("grid grid-cols-2 gap-4 bg-btn p-4"):
+        for sticker in STICKERS:
+            with SoftBtn(
+                on_click=lambda s=sticker: model.setValue((model.value or "") + '\n'*len(model.value) + s),
+                clr='secondary',
+                px=1,
+                py=1,
+                active_effects=False,
+                clas="shadow-none border"
+                ):
+                Raw.Html(sticker)
+
 def createMessageBox(model=None, on_send=lambda:()):
     with Raw.RawRow("") as r:
         TextArea(
@@ -50,18 +64,26 @@ def createMessageBox(model=None, on_send=lambda:()):
                 placeholder = "Your Message Here...",
             )
         )
-        with fab("plus"):
-            SoftBtn(
-                icon="add_reaction",
-                on_click=lambda:(), 
-                rounded='full',
-                px=1,
-                py=1,
-                clr='secondary',
-                text_clr='primary',
-                clas="flex h-10 aspect-square shadow-none border border-[var(--q-accent)]",
-                icon_config={"size":"sm"}
-            )
+        with SoftBtn(
+                    icon="add",
+                    rounded='full',
+                    px=1,
+                    py=1,
+                    clas="flex h-10 aspect-square",
+                    icon_config={"size":"sm"},
+            ):
+            with menu().classes('bg-transparent shadow-none p-0 pb-2 m-0 border-none '):
+                with SoftBtn(
+                    icon="add_reaction",
+                    on_click=lambda:(), 
+                    rounded='full',
+                    px=1,
+                    py=1,
+                    clr='btn',
+                    clas="flex h-10 aspect-square shadow-none border border-[var(--q-accent)]",
+                    icon_config={"size":"sm"}
+                ).tooltip("Add Sticker"):
+                    with menu(): _create_sticker_chooser(model)
         SoftBtn(
             icon="send",
             on_click=on_send, 
