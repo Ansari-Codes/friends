@@ -9,5 +9,6 @@ ui.run(
     title=APP_NAME,
     storage_secret = SECRET, 
     host=ENV.HOST,
-    port=ENV.PORT
+    port=ENV.PORT,
+    reload=False,
     )
