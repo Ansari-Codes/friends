@@ -98,16 +98,33 @@ async def list_contacts(contacts, open_chat_callback=None):
             })
     return contcts, container
 
-async def createSearch(contacts: list, model: Variable):
-    theme = await INIT_THEME()
+async def createSearch(contacts: list, model: Variable, container, open_chat_callback=None):
     names = [i.get("user", {}).get("name") for i in contacts if i is not None and i.get("user") is not None]
+    def filter_contacts():
+        query = (model.value or "").lower()
+        container.clear()
+        for contact in contacts:
+            user_name = contact.get("user", {}).get("name", "")
+            if query in user_name.lower():
+                btn = SoftBtn(
+                    user_name,
+                    on_click=lambda c=contact: open_chat_callback(c) if open_chat_callback else None,
+                    clr="btn",
+                    clas="w-full hover:bg-primary gap-1",
+                    text_align='left',
+                    icon='person',
+                    justify=None,
+                    text_clr='text-secondary'
+                )
+                btn.move(container)
     with Row(f"w-full border border-[var(--q-primary)] rounded-sm gap-0") as cont:
-        Input(
+        inp = Input(
             "flex flex-grow flex-shrink px-2 bg-transparent", 
             autocomplete=names,
             props='dense borderless input-class="bg-transparent text-text-primary"',
             default_props=False,
             model=model,
+            on_change=lambda: filter_contacts()
         )
         SoftBtn(
             icon="search", 
@@ -116,6 +133,7 @@ async def createSearch(contacts: list, model: Variable):
             active_effects=True,
             hover_effects=True,
             px=2,
+            on_click=lambda: filter_contacts()
         ).classes("text-text-primary")
     cont.classes("w-full")
 
@@ -158,13 +176,14 @@ async def createAddContact(dialog, contacts, lister, cntcts, mch):
 async def CompSideBar(model_query: Variable, open_chat_callback=None, others=None):
     response = (await get_contacts(getUserStorage().get("id"))) or {}
     contacts = response.get("data", [])
-    with RawCol('gap-2 w-full'):
+    with RawCol('gap-2 w-full') as sidebar:
         Label(
             getUserStorage().get("name", "UnKnown"),
             "w-full text-center text-2xl font-bold text-text-primary capitalize bg-primary rounded-xl p-1 break-words px-4"
         )
-        await createSearch(contacts, model_query)
-    cntcts,lister = await list_contacts(contacts, open_chat_callback)
+        cntcts, lister = await list_contacts(contacts, open_chat_callback)
+        await createSearch(contacts, model_query, lister, open_chat_callback)
+        lister.move(sidebar, 2)
     dialog = Dialog()
     AddSpace()
     with RawCol('gap-1 w-full'):

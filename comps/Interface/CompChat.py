@@ -4,8 +4,9 @@ from backend.Controllers import ControlChat
 from library.formHandler import Variable
 from utils.Storage import getUserStorage
 from nicegui.ui import element
-from nicegui.ui import run_javascript, context_menu, timer, scroll_area
+from nicegui.ui import run_javascript, menu, timer, scroll_area, context_menu, fab
 from datetime import datetime
+import json
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -49,6 +50,18 @@ def createMessageBox(model=None, on_send=lambda:()):
                 placeholder = "Your Message Here...",
             )
         )
+        with fab("plus"):
+            SoftBtn(
+                icon="add_reaction",
+                on_click=lambda:(), 
+                rounded='full',
+                px=1,
+                py=1,
+                clr='secondary',
+                text_clr='primary',
+                clas="flex h-10 aspect-square shadow-none border border-[var(--q-accent)]",
+                icon_config={"size":"sm"}
+            )
         SoftBtn(
             icon="send",
             on_click=on_send, 
@@ -56,7 +69,7 @@ def createMessageBox(model=None, on_send=lambda:()):
             clas="flex h-10 aspect-square shadow-none"
         )
     return r
-import json
+
 async def copy_to_clipboard(content):
     await run_javascript(f"navigator.clipboard.writeText({json.dumps(content)})")
     Notify("Copied", color='success', icon='check')
