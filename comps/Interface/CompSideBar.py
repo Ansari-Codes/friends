@@ -10,6 +10,7 @@ from nicegui.ui import dialog as dial
 from utils.Storage import getUserStorage
 
 async def __send_inv(user: str, dialog, contacts, lister, contcts, open_chat_callback):
+    if not user: return
     user_ = await Auth().getUserByIdentifier(user.strip().lower())
     if user_ and user_[0].get("id") in [i.get("user", {}).get("id") for i in contacts if i is not None and i.get("user") is not None]:
         Notify("User Already exists!", position="center")
@@ -51,7 +52,7 @@ async def __send_inv(user: str, dialog, contacts, lister, contcts, open_chat_cal
 async def add_contact(dialog: dial, contacts: list, lister, cntcts, mch):
     all_users = await get_All_users()
     all_users = all_users.get("data", [])
-    add_contact_model = Variable("name")
+    add_contact_model = Variable("name", "")
     dialog.clear()
     dialog.props('persistent="false"')
     with dialog:
