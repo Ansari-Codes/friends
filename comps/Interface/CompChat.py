@@ -1,12 +1,10 @@
-import asyncio
 from UI import message, Raw, SoftBtn, Row, Col, TextArea, AddSpace, Notify, Label
 from UI.Basic import Card, Header
 from backend.Controllers import ControlChat
 from library.formHandler import Variable
 from utils.Storage import getUserStorage
 from nicegui.ui import element
-from ENV import THEME_DEFAULT
-from nicegui.ui import run_javascript, context_menu, timer, context, scroll_area
+from nicegui.ui import run_javascript, context_menu, timer, scroll_area
 from datetime import datetime
 
 def getUserId(): return getUserStorage().get("id")
@@ -58,6 +56,18 @@ def createMessageBox(model=None, on_send=lambda:()):
             clas="flex h-10 aspect-square shadow-none"
         )
     return r
+import json
+async def copy_to_clipboard(content):
+    await run_javascript(f"navigator.clipboard.writeText({json.dumps(content)})")
+    Notify("Copied", color='success', icon='check')
+
+async def delete(msg, r):
+    response = await ControlChat.delete({'id': msg.get("id")})
+    if response.get("success"):
+        r.delete()
+        Notify("Deleted successfully!", color="success")
+    else:
+        Notify("Cannot delete the message", color="error")
 
 def addMessage(msg: dict, container: scroll_area, prev_msg: dict|None = None, index: int|None = None):
     seen = msg.get("seen_at", "")
@@ -102,8 +112,7 @@ def addMessage(msg: dict, container: scroll_area, prev_msg: dict|None = None, in
         time = readable.split(",")
         date = time[0].split(' ')[1]
         time = time[2]
-        if sent:
-            AddSpace()
+        if sent: AddSpace()
         print(sent)
         with Card().classes(
             f"max-w-[100%] md:max-w-[70%] p-2 rounded-xl shadow-sm text-label "
@@ -113,12 +122,29 @@ def addMessage(msg: dict, container: scroll_area, prev_msg: dict|None = None, in
             with Col().classes("gap-0"):
                 Raw.Html(msg.get("content", ""))
                 Label(date + ', ' + time).classes("text-xs text-gray-500 text-right mt-1 italic")
-            with context_menu().props("touch-position").classes("p-1 rounded-full "):
-                SoftBtn(icon='content_copy', rounded='full', px=1, py=1).classes("m-2")
-                SoftBtn(icon='delete', rounded='full', px=1, py=1).classes("m-2")
-                SoftBtn(icon='edit', rounded='full', px=1, py=1).classes("m-2")
-        if not sent:
-            AddSpace()
+            with context_menu().props("touch-position").classes("rounded-full") as c:
+                async def copy(): 
+                    await copy_to_clipboard(msg.get("content", ""))
+                    c.close()
+                async def dele():
+                    await delete(msg, r)
+                    c.close()
+                with Raw.RawRow("w-full p-1 gap-1"):
+                    SoftBtn(icon='content_copy',
+                            rounded='full', px=1, py=1, 
+                            on_click=copy
+                            ).tooltip("Copy")
+                    if sent:
+                        SoftBtn(icon='delete', 
+                                rounded='full', px=1, py=1,
+                                on_click=dele,
+                                clr="error"
+                                ).tooltip("Delete")
+                        SoftBtn(icon='edit', 
+                                rounded='full', px=1, py=1, 
+                                on_click=c.close
+                                ).tooltip("Edit")
+        if not sent: AddSpace()
     r.move(container)
     container.update()
     container.scroll_to(percent=100)
