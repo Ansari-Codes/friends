@@ -3,7 +3,9 @@ import routes, ENV
 from nicegui import ui
 
 ui.run(
-    favicon=FAVICON, title=APP_NAME,
-    storage_secret = SECRET, port=9000,
-    on_air='VbyVaIeWbVFyE2XQ'
+    favicon=FAVICON, 
+    title=APP_NAME,
+    storage_secret = SECRET, 
+    host=ENV.HOST,
+    port=ENV.PORT
     )

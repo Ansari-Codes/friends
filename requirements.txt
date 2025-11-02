@@ -3,3 +3,4 @@ aiosqlite==0.21
 bcrypt==5.0
 bleach==6.1
 markdown==3.7
+beautifulsoup4>=4.12
