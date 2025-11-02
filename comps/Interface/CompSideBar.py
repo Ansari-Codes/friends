@@ -12,6 +12,7 @@ from utils.Storage import getUserStorage
 async def __send_inv(user: str, dialog, contacts, lister, contcts, open_chat_callback):
     if not user: return
     user_ = await Auth().getUserByIdentifier(user.strip().lower())
+    if not user_: return
     if user_ and user_[0].get("id") in [i.get("user", {}).get("id") for i in contacts if i is not None and i.get("user") is not None]:
         Notify("User Already exists!", position="center")
         return
