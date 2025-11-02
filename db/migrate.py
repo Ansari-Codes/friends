@@ -70,7 +70,7 @@ async def rollback_last():
         return
     print(f"🔄 Rolling back migration: {last}")
     try:
-        mod = importlib.import_module(f"backend.{MIGRATIONS_FOLDER}.{last}")
+        mod = importlib.import_module(f"{MIGRATIONS_FOLDER}.{last}")
         sql = mod.down()
         await RUN_SQL(sql)
         print("✅ Rollback complete.")

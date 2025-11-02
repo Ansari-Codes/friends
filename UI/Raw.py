@@ -1,5 +1,6 @@
 from typing import Any
 from nicegui import ui
+from library.Html import markdown_to_safe_html
 
 def Html(
         content: str = "",
@@ -7,7 +8,7 @@ def Html(
         props: str|None = "",
         styles: str|None = "",
     ):
-    return ui.html(content, sanitize=lambda x: x).classes(clas).props(props).style(styles)
+    return ui.html(markdown_to_safe_html(content), sanitize=lambda x: x).classes(clas).props(props).style(styles)
 
 def Div(       
         clas: str|None = "", 

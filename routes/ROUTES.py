@@ -21,7 +21,7 @@ async def createLoadingScreen(
     with Col('w-[95vw] h-[95vh] justify-center items-center') as c:
         with Raw.RawRow('w-fit h-fit justify-center items-center'):
             ui.spinner("comment", size='80px', color=f'{theme.get("primary")}')
-            Raw.Html(f"""
+            ui.html(f"""
                 <div class="flex flex-col">
                     <span class="text-[{theme.get('primary')}] text-3xl font-medium">
                         Loading
@@ -30,7 +30,7 @@ async def createLoadingScreen(
                         Please Wait...
                     </span>
                 </div>
-            """)
+            """, sanitize=lambda x: x)
     other_functions_is_to_be_called = False
     if auth:
         if not (await isAuthenticated()):

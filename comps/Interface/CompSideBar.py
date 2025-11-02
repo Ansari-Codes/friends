@@ -11,13 +11,13 @@ from utils.Storage import getUserStorage
 
 async def __send_inv(user: str, dialog, contacts, lister, contcts, open_chat_callback):
     user_ = await Auth().getUserByIdentifier(user.strip().lower())
-    if user_ and user_[0].get("id") in [i.get("user", {}).get("id") for i in contacts]:
+    if user_ and user_[0].get("id") in [i.get("user", {}).get("id") for i in contacts if i is not None and i.get("user") is not None]:
         Notify("User Already exists!", position="center")
         return
     response = await ControlChat.send({
         "from_id": getUserStorage().get("id"),
         "to_id": user_[0].get("id"),
-        "content": "Assalam-o-Alaikum!\n😁😁😁😁😁😁😁"
+        "content": f"Hey {user_[0].get('name', '')}! 👋\n\nGlad we’re connected!"
     })
     u = user_[0]
     u.pop("password", None)
@@ -78,6 +78,8 @@ async def list_contacts(contacts, open_chat_callback=None):
     contcts = []
     with RawCol('w-full h-fit max-h-full overflow-y-auto gap-1') as container:
         for i in contacts:
+            if i is None or i.get("user") is None:
+                continue
             def make_click_handler(contact):
                 return lambda: open_chat_callback(contact) if open_chat_callback else None
             widget = SoftBtn(
@@ -98,7 +100,7 @@ async def list_contacts(contacts, open_chat_callback=None):
 
 async def createSearch(contacts: list, model: Variable):
     theme = await INIT_THEME()
-    names = [i.get("user", {}).get("name") for i in contacts]
+    names = [i.get("user", {}).get("name") for i in contacts if i is not None and i.get("user") is not None]
     with Row(f"w-full border border-[var(--q-primary)] rounded-sm gap-0") as cont:
         Input(
             "flex flex-grow flex-shrink px-2 bg-transparent", 
