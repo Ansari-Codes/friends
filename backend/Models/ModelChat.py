@@ -3,9 +3,10 @@ from .Model import Model
 from EXCEPTIONS import InvalidChoice, Required, NotFound, ValidationError
 from library.dbQuery import Query
 from db.db import RUN_SQL
+from db.Migrations.MIGRATIONS import TABLE_CHATS
 import datetime
 
-TABLE = "chat"
+TABLE = TABLE_CHATS
 ALLOWED_STATUS = ('seen', 'sent', 'pending', 'error')
 
 class Chat(Model):

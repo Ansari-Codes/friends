@@ -1,5 +1,4 @@
-TABLE = "chat"
-
+from db.Migrations.MIGRATIONS import TABLE_CHATS as TABLE
 def up():
     return f"""
 CREATE TABLE IF NOT EXISTS {TABLE} (

@@ -2,8 +2,7 @@ from nicegui import ui
 from UI import Label, Raw, Row, RawCol, RawRow, Col, Icon, SoftBtn, AddSpace, Card, Center, INIT_THEME
 from ENV import THEME_DEFAULT, APP_NAME, FAVICON, QUOTE
 
-async def CompInterfaceWelcome(drawer):
-    theme = await INIT_THEME()
+def CompInterfaceWelcome(drawer):
     with Col(
         "items-center justify-center w-[96vw] lg:w-[75vw] h-[85vh] p-10 text-center gap-6 rounded-xl"
     ):

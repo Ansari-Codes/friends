@@ -1,10 +1,11 @@
 from backend.Models.ModelAuth import Auth
 from backend.Models.ModelChat import Chat
+from db.Migrations.MIGRATIONS import TABLE_USERS
 from db.db import RUN_SQL
 
 auth = Auth()
 chat = Chat()
-USERS = 'users'
+USERS = TABLE_USERS
 
 async def get_contacts(user_id: int | None):
     if not user_id:

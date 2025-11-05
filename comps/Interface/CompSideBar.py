@@ -1,4 +1,4 @@
-from UI import RawCol, RawRow, Label, INIT_THEME, Input, Icon, AddSpace, Row, Col, Dialog, SoftBtn, Notify, DialogHeader, Card, Div
+from UI import RawCol, RawRow, Label, INIT_THEME, Input, Icon, AddSpace, Row, showLoading, Col, Dialog, SoftBtn, Notify, DialogHeader, Card, Div
 from backend.Controllers.ControlContacts import get_contacts, get_All_users
 from backend.Controllers import ControlChat
 from backend.Models.ModelAuth import Auth
@@ -51,8 +51,6 @@ async def __send_inv(user: str, dialog, contacts, lister, contcts, open_chat_cal
     dialog.close()
 
 async def add_contact(dialog: dial, contacts: list, lister, cntcts, mch):
-    all_users = await get_All_users()
-    all_users = all_users.get("data", [])
     add_contact_model = Variable("name", "")
     dialog.clear()
     dialog.props('persistent="false"')
@@ -61,13 +59,12 @@ async def add_contact(dialog: dial, contacts: list, lister, cntcts, mch):
             with Div('w-full h-full'):
                 DialogHeader(title="Add Contact", on_close=dialog.close).classes("bg-primary")
                 with RawCol('p-2 m-0 gap-2'):
-                    Input(
+                    inp = Input(
                         "w-full flex flex-grow flex-shrink",
-                        autocomplete=[i.get("name") for i in all_users],
                         model=add_contact_model,
                         placeholder = 'Enter username...'
                     )
-                    SoftBtn(
+                    btn = SoftBtn(
                         "Add",
                         icon="add",
                         on_click=lambda a=add_contact_model, d=dialog, c=contacts, l=lister, cc=cntcts, mch=mch: (
@@ -75,6 +72,8 @@ async def add_contact(dialog: dial, contacts: list, lister, cntcts, mch):
                         )
                     )
     dialog.open()
+    all_users = await get_All_users()
+    inp.set_autocomplete([i.get("name") for i in all_users.get("data", [])]) # type: ignore
 
 async def list_contacts(contacts, open_chat_callback=None):
     contcts = []
@@ -138,6 +137,7 @@ async def createSearch(contacts: list, model: Variable, container, open_chat_cal
             on_click=lambda: filter_contacts()
         ).classes("text-text-primary")
     cont.classes("w-full")
+    return cont
 
 async def createUISettings(handler):
     widget = SoftBtn(
@@ -176,19 +176,24 @@ async def createAddContact(dialog, contacts, lister, cntcts, mch):
     return widget
 
 async def CompSideBar(model_query: Variable, open_chat_callback=None, others=None):
-    response = (await get_contacts(getUserStorage().get("id"))) or {}
-    contacts = response.get("data", [])
     with RawCol('gap-2 w-full') as sidebar:
         Label(
             getUserStorage().get("name", "UnKnown"),
             "w-full text-center text-2xl font-bold text-text-primary capitalize bg-primary rounded-xl p-1 break-words px-4"
         )
-        cntcts, lister = await list_contacts(contacts, open_chat_callback)
-        await createSearch(contacts, model_query, lister, open_chat_callback)
-        lister.move(sidebar, 2)
     dialog = Dialog()
     AddSpace()
-    with RawCol('gap-1 w-full'):
+    special = RawCol('gap-1 w-full')
+    loading = showLoading()
+    loading.move(sidebar)
+    response = (await get_contacts(getUserStorage().get("id"))) or {}
+    contacts = response.get("data", [])
+    loading.delete()
+    cntcts, lister = await list_contacts(contacts, open_chat_callback)
+    search = await createSearch(contacts, model_query, lister, open_chat_callback)
+    search.move(sidebar, 1)
+    lister.move(sidebar, 2)
+    with special:
         await createAddContact(dialog, contacts, lister, cntcts, open_chat_callback)
         if others:
             await createAccountSettings(lambda: others('a'))

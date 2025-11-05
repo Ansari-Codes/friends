@@ -3,7 +3,7 @@ from db.db import RUN_SQL
 from library.validations import IsValidEmail, IsValidName, StrengthOfPswd
 from backend.Models.ModelAuth import Auth
 from bcrypt import checkpw
-TABLE = "users"
+TABLE = "users_friends"
 
 async def _is_unique(value: str, column: str):
     query = Query(TABLE).select("COUNT(*)").where(**{column: value}).SQL()
@@ -77,9 +77,12 @@ async def login(data: dict) -> dict:
         if users and len(users) > 0:
             user_data = users[0]
             hashed_pw = user_data.get("password", "")
-            if not checkpw(password.encode(), hashed_pw.encode()):
-                errors['password'] = "Password is incorrect!"
-                user_data = None
+            if hashed_pw:
+                if not checkpw(password.encode(), hashed_pw.encode()):
+                    errors['password'] = "Password is incorrect!"
+                    user_data = None
+            else:
+                errors['unknown'] = "Account not found!"
         else: errors['unknown'] = "Account not found!"
     success = not errors
     return {

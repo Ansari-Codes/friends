@@ -3,9 +3,10 @@ from .Model import Model
 from EXCEPTIONS import InvalidChoice, Required, NotFound, ValidationError
 from library.dbQuery import Query
 from db.db import RUN_SQL
+from db.Migrations.MIGRATIONS import TABLE_USERS
 import bcrypt
 
-TABLE = "users"
+TABLE = TABLE_USERS
 
 class Auth(Model):
     def __init__(self):
@@ -17,14 +18,9 @@ class Auth(Model):
         email = obj.get("email")
         password = obj.get("password")
 
-        if not name:
-            raise Required("Name")
-        if not email:
-            raise Required("Email")
-        if not password:
-            raise Required("Password")
-
-        # Hash the password securely
+        if not name: raise Required("Name")
+        if not email: raise Required("Email")
+        if not password: raise Required("Password")
         hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
         SQL = Query(TABLE).insert(
@@ -33,9 +29,12 @@ class Auth(Model):
             password=hashed_password,
         ).SQL()
 
-        await RUN_SQL(SQL)
+        response = await RUN_SQL(SQL)
+        print(response)
         FETCH = Query(TABLE).select().where(name=name).SQL()
-        return await RUN_SQL(FETCH, True)
+        ANS = await RUN_SQL(FETCH, True)
+        print(ANS)
+        return ANS
 
     # ----------------- UPDATE -----------------
     async def _update(self, obj: dict):

@@ -1,4 +1,4 @@
-TABLE = "users"
+from db.Migrations.MIGRATIONS import TABLE_USERS as TABLE
 
 def up():
     return f"""

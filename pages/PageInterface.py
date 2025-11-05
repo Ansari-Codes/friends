@@ -20,7 +20,20 @@ def setupLayout(header, footer, container):
     footer.set_visibility(True)
 
 async def create():
-    theme = await INIT_THEME()
+    await INIT_THEME()
+    loading_overlay = element('div').classes(
+        'fixed inset-0 z-50 flex items-center justify-center text-label text-3xl font-bold w-full h-full'
+    ).style(
+        '''
+        background: linear-gradient(
+            135deg,
+            var(--q-primary) 0%,
+            var(--q-accent) 50%,
+            var(--q-secondary) 100%
+        );
+        '''
+    )
+    loading_overlay._text = ('Setting up environment...')
     query("body").element.classes("")
     add_css(f"""
         body {{
@@ -33,8 +46,7 @@ async def create():
         }}
     """)
     query_model = Variable("query")
-    def setup():
-        setupLayout(header, footer, chat_box)
+    def setup(): setupLayout(header, footer, chat_box)
     async def open_chat(contact: dict | None):
         contact = contact or {}
         setup()
@@ -45,21 +57,21 @@ async def create():
             return
         elif c == 'u':
             setup()
-            with chat_box:
-                await CompTheme.CompTheme(header, footer, drawer)
-    header = Header(
-    ).props("dense"
-    ).classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0")
-    with left_drawer().classes("bg-secondary") as drawer : await CompSideBar.CompSideBar(query_model, open_chat, other_handler)
-    footer = Footer(
-    ).classes("bg-primary text-white flex items-end min-h-[7vh] max-h-[500px] p-0 px-2 py-2 space-x-0 space-y-0"
-    ).props("dense")
+            with chat_box: await CompTheme.CompTheme(header, footer, drawer)
+    with left_drawer(value=False).classes("bg-secondary") as drawer : 
+        await CompSideBar.CompSideBar(query_model, open_chat, other_handler)
     with Raw.RawCol("w-full h-fit gap-1"):
         chat_box = element('div').classes(
             'flex flex-col w-full h-fit justify-center '
-            'items-center '
-            )
-        with chat_box:
-            await CompInterfaceWelcome.CompInterfaceWelcome(drawer)
-            header.set_visibility(False)
-            footer.set_visibility(False)
+            'items-center ')
+        with chat_box: CompInterfaceWelcome.CompInterfaceWelcome(drawer)
+    loading_overlay.delete()
+    drawer.set_value(True)
+    header = Header(
+    ).props("dense"
+    ).classes("bg-primary text-white flex items-center h-[7vh] p-0 px-2 space-x-0 space-y-0")
+    footer = Footer(
+    ).classes("bg-primary text-white flex items-end min-h-[7vh] max-h-[500px] p-0 px-2 py-2 space-x-0 space-y-0"
+    ).props("dense")
+    header.set_visibility(False)
+    footer.set_visibility(False)

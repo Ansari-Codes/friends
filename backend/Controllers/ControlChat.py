@@ -3,8 +3,8 @@ from db.db import RUN_SQL
 from backend.Models.ModelChat import Chat
 from EXCEPTIONS import Required, NotFound, ValidationError
 
-TABLE = "chat"
-USERS_TABLE = "users"
+TABLE = "chat_friends"
+USERS_TABLE = "users_friends"
 PAGE_SIZE = 20
 
 # ------------------ VALIDATIONS ------------------

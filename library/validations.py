@@ -1,5 +1,4 @@
 from string import ascii_letters, digits, punctuation
-from EXCEPTIONS import ValidationError
 import re
 
 def IsValidName(name: str):
