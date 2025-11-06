@@ -28,4 +28,3 @@ async def RUN_SQL(query: str, to_fetch: bool = False):
         raise
     finally:
         print("finished with error")
-

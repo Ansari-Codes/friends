@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS {TABLE} (
     from_id INTEGER NOT NULL,
     to_id INTEGER NOT NULL,
     content TEXT NOT NULL,
+    msg_type TEXT DEFAULT 'txt',
     reply_to_id INTEGER,
     sent_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     seen_at DATETIME,

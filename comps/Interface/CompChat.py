@@ -8,6 +8,7 @@ from nicegui.ui import run_javascript, menu, timer, scroll_area, context_menu, f
 from datetime import datetime
 import json
 from comps.Interface.INTERFACE import STICKERS
+from utils.Messaging import record_audio
 
 def getUserId(): return getUserStorage().get("id")
 
@@ -17,9 +18,19 @@ async def _fetch_chat(to: dict):
         "to_id": to.get("id")
         })
 
-async def send(model, chat, col, to: dict|None = None):
+async def send_voice_msg(chat, col, to):
+    aud = await record_audio()
+    await send(value=aud, chat=chat, col=col, to=to)
+
+async def send(
+    model:Variable|None=None, 
+    chat:Variable|None=None, 
+    col=None, 
+    to: dict|None = None,
+    value=None
+    ):
     to = to or {}
-    msg = str(model.value or "").strip()
+    msg = str(model.value or "").strip() if model else value
     if not msg:
         Notify("I need a message to send!", color="warning", icon="warning")
         return
@@ -29,10 +40,12 @@ async def send(model, chat, col, to: dict|None = None):
         "content": msg
     })
     if response.get("success"):
-        chat.value.append(response.get("data"))
-        model.value = ""
+        chat.value.append(response.get("data")) # type: ignore
+        model.value = "" # type: ignore
         msg = response.get("data", [])[0]
-        addMessage(msg, col)
+        addMessage(msg, col) # type: ignore
+        sender_name = to.get("user", {}).get("name", "Someone")
+        content = msg.get("content", "")
     else:
         Notify("We cannot send your message!", color="error", icon="error")
 
@@ -49,7 +62,7 @@ def _create_sticker_chooser(model):
                 ):
                 Raw.Html(sticker)
 
-def createMessageBox(model=None, on_send=lambda:()):
+def createMessageBox(model=None, text_msg_handler = lambda:(), voice_msg_handler = lambda:()):
     with Raw.RawRow("") as r:
         TextArea(
             "TextArea",
@@ -84,9 +97,19 @@ def createMessageBox(model=None, on_send=lambda:()):
                     icon_config={"size":"sm"}
                 ).tooltip("Add Sticker"):
                     with menu(): _create_sticker_chooser(model)
+                SoftBtn(
+                    icon="mic",
+                    on_click=voice_msg_handler, 
+                    rounded='full',
+                    px=1,
+                    py=1,
+                    clr='btn',
+                    clas="flex h-10 aspect-square shadow-none border border-[var(--q-accent)]",
+                    icon_config={"size":"sm"}
+                ).tooltip("Record voice")
         SoftBtn(
             icon="send",
-            on_click=on_send, 
+            on_click=text_msg_handler, 
             rounded='sm',
             clas="flex h-10 aspect-square shadow-none"
         )
@@ -262,7 +285,8 @@ async def CompChat(to: dict | None, container: element, drawer, header, footer):
     message_content = Variable("message_content", "")
     c = createMessageBox(
         message_content,
-        lambda: send(message_content, chat_messages, messages_col, user_data)
+        lambda: send(message_content, chat_messages, messages_col, user_data),
+        lambda: send_voice_msg(chat_messages, messages_col, user_data)
     )
     c.classes("w-full flex gap-2 items-end backdrop-blur-sm")
     c.props("dense")

@@ -9,5 +9,5 @@ ui.run(
     storage_secret = SECRET, 
     host=ENV.HOST,
     port=ENV.PORT,
-    reload=False,
+    reload=True,
     )

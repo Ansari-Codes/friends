@@ -8,6 +8,7 @@ import datetime
 
 TABLE = TABLE_CHATS
 ALLOWED_STATUS = ('seen', 'sent', 'pending', 'error')
+ALLOWED_TYPES = ('txt', 'vid', 'aud', 'img', 'file')
 
 class Chat(Model):
     def __init__(self):
@@ -20,12 +21,13 @@ class Chat(Model):
         content = obj.get("content")
         reply_to_id = obj.get("reply_to_id")
         status = obj.get("status", "pending")
+        msg_type = obj.get("msg_type", 'txt')
 
         if not from_id: raise Required("from_id")
         if not to_id: raise Required("to_id")
         if not content: raise Required("content")
-        if status not in ALLOWED_STATUS:
-            raise InvalidChoice(f"status must be one of {ALLOWED_STATUS}")
+        if status not in ALLOWED_STATUS: raise InvalidChoice(f"status must be one of {ALLOWED_STATUS}")
+        if msg_type not in ALLOWED_TYPES: raise InvalidChoice(f"msg_type must be one of {ALLOWED_TYPES}")
 
         SQL = Query(TABLE).insert(
             from_id=from_id,
@@ -33,7 +35,8 @@ class Chat(Model):
             content=content,
             reply_to_id=reply_to_id or 'NULL',
             status=status,
-            sent_at=f'{str(datetime.datetime.now(datetime.timezone.utc))}'
+            sent_at=f'{str(datetime.datetime.now(datetime.timezone.utc))}',
+            msg_type=msg_type
         ).SQL()
         await RUN_SQL(SQL)
         FETCH = Query(TABLE).select().where(from_id=from_id, to_id=to_id).order_by("id", direction='DESC').limit(1).SQL()
@@ -54,11 +57,13 @@ class Chat(Model):
         if not current:
             raise NotFound(f"Message with id={message_id} not found.")
 
-        allowed_fields = ["from_id", "to_id", "content", "reply_to_id", "status", "seen_at", "sent_at"]
+        allowed_fields = ["from_id", "to_id", "content", "reply_to_id", "status", "seen_at", "sent_at", "msg_type"]
         update_data = {k: v for k, v in obj.items() if k in allowed_fields}
 
         if "status" in update_data and update_data["status"] not in ALLOWED_STATUS:
             raise InvalidChoice(f"status must be one of {ALLOWED_STATUS}")
+        if "msg_type" in update_data and update_data["msg_type"] not in ALLOWED_TYPES:
+            raise InvalidChoice(f"msg_type must be one of {ALLOWED_TYPES}")
 
         if not update_data:
             raise ValidationError("No valid fields provided to update.")

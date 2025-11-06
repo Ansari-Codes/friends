@@ -1,6 +1,6 @@
 from library.dbQuery import Query
 from db.db import RUN_SQL
-from backend.Models.ModelChat import Chat
+from backend.Models.ModelChat import Chat, ALLOWED_TYPES
 from EXCEPTIONS import Required, NotFound, ValidationError
 
 TABLE = "chat_friends"
@@ -30,6 +30,7 @@ async def _validate(data: dict) -> dict:
     to_id = data.get("to_id")
     content = data.get("content")
     reply_to_id = data.get("reply_to_id")
+    msg_type = data.get("msg_type")
     if not from_id:
         errors["from_id"] = "from_id is required."
     elif not await _exists_in_users(from_id):
@@ -42,6 +43,8 @@ async def _validate(data: dict) -> dict:
         errors["content"] = "Content is required."
     if reply_to_id is not None and not await _exists_in_chat(reply_to_id):
         errors["reply_to_id"] = f"Reply message with id={reply_to_id} does not exist."
+    if msg_type and not (msg_type in ALLOWED_TYPES):
+        errors["msg_types"] = f"Message Type should only be in: {ALLOWED_TYPES}"
     return errors
 
 # ------------------ CONTROLLER FUNCTIONS ------------------
