@@ -6,10 +6,10 @@ from db.Migrations import CreateTableChat, CreateTableUsers
 
 logger = logging.getLogger(__name__)
 
-API_URL = "https://worldofansari.com/friends-api"
+API_URL = "http://worldofansari.com/dbapi"
 
 async def RUN_SQL(query: str, to_fetch: bool = False):
-    payload = {"query": query, "to_fetch": to_fetch}
+    payload = {"query": query, "to_fetch": to_fetch, "name": "friends"}
     try:
         print("started")
         async with httpx.AsyncClient(timeout=10) as client:
