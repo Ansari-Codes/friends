@@ -1,14 +1,13 @@
-import logging
+# MIGRATIONS
+import logging, httpx
+from db.Migrations.CreateTableChat import up as ccup
+from db.Migrations.CreateTableUsers import up as ctup
 
 logging.basicConfig(
     level=logging.DEBUG,  # or DEBUG for more verbose
     format="%(asctime)s [%(levelname)s] %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-# MIGRATIONS
-from db.Migrations.CreateTableChat import up as ccup
-from db.Migrations.CreateTableUsers import up as ctup
 
 sql = ccup() + '\n' + ctup()
 API_URL = "http://worldofansari.com/dbapi"
